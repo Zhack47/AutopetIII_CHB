@@ -117,6 +117,8 @@ class Autopet_baseline:
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
+        print(properties)
+        print(images.shape)
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
 
