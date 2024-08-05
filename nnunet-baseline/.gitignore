@@ -106,3 +106,4 @@ ENV/
 
 # Pycharm
 .idea/
+nnUNet_results
