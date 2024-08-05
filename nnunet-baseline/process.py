@@ -107,12 +107,12 @@ class Autopet_baseline:
         output_file_trunc = self.result_path.rstrip(".nii.gz")
 
         predictor = nnUNetPredictor(
-            tile_step_size=0.5,
-            use_mirroring=True,
+            tile_step_size=0.8,
+            use_mirroring=False,
             verbose=True,
             verbose_preprocessing=True,
             allow_tqdm=True)
-        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0, 1, 2, 3, 4))
+        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,))
         predictor.dataset_json['file_ending'] = '.mha'
 
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
