@@ -104,7 +104,7 @@ class Autopet_baseline:
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
         uuid = os.path.basename(os.path.splitext(ct_mha)[0])
-        output_file_trunc = os.path.join(self.output_path, uuid)
+        output_file_trunc = self.result_path.rstrip(".nii.gz")
 
         predictor = nnUNetPredictor(
             tile_step_size=0.5,
