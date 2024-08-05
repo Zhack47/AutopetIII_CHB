@@ -133,6 +133,7 @@ class Autopet_baseline:
         images = np.stack([ct, pt, ct_win, pt_win])
         print(properties)
         print(images.shape)
+        print(output_file_trunc)
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
 
