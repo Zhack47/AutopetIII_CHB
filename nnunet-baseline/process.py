@@ -82,6 +82,9 @@ class Autopet_baseline:
         Check https://grand-challenge.org/algorithms/interfaces/
         """
         os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
+        print(os.path.join(self.result_path, self.nii_seg_file))
+        print(os.path.join(self.output_path, uuid + ".mha"))
+        os.system("/bin/sh")
         self.convert_nii_to_mha(
             os.path.join(self.result_path, self.nii_seg_file),
             os.path.join(self.output_path, uuid + ".mha"),
