@@ -43,8 +43,8 @@ file = os.listdir('/output/images/automated-petct-lesion-segmentation')[0]
 output = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join('/output/images/automated-petct-lesion-segmentation/', file)))
 expected_output = sitk.GetArrayFromImage(sitk.ReadImage('/expected_output/psma_95b833d46f153cd2_2018-04-16.nii.gz'))
 
-print(sum(expected_output))
-print(sum(output))
+print(sum(sum(sum(expected_output))))
+print(sum(sum(sum(output))))
 mse = sum(sum(sum((output - expected_output) ** 2)))
 if mse < 10:
     print('Test passed!')
