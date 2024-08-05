@@ -109,12 +109,12 @@ class Autopet_baseline:
         output_file_trunc = os.path.join(self.output_path + uuid)
 
         predictor = nnUNetPredictor(
-            tile_step_size=0.8,
+            tile_step_size=0.5,
             use_mirroring=False,
             verbose=True,
             verbose_preprocessing=True,
             allow_tqdm=True)
-        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,))
+        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
         predictor.dataset_json['file_ending'] = '.mha'
 
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
@@ -122,20 +122,9 @@ class Autopet_baseline:
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
         ct = images[0]
         pt = images[1]
-        print(pt.min())
-        print(pt.max())
-        print(ct.min())
-        print(ct.max())
         ct_win = np.clip(ct, -300, 400)
         pt_win = np.clip(pt, 0, 20)
-        print(pt_win.min())
-        print(pt_win.max())
-        print(ct_win.min())
-        print(ct_win.max())
         images = np.stack([ct, pt, ct_win, pt_win])
-        print(properties)
-        print(images.shape)
-        print(output_file_trunc)
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
 
