@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 
 import SimpleITK
@@ -82,13 +83,11 @@ class Autopet_baseline:
         Check https://grand-challenge.org/algorithms/interfaces/
         """
         os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
-        print(os.path.join(self.result_path, self.nii_seg_file))
-        print(os.path.join(self.output_path, uuid + ".mha"))
-        os.system("/bin/sh")
-        self.convert_nii_to_mha(
+        shutil.move(os.path.join(self.result_path, uuid+".mha"), os.path.join(self.output_path, uuid + ".mha"))
+        """self.convert_nii_to_mha(
             os.path.join(self.result_path, self.nii_seg_file),
             os.path.join(self.output_path, uuid + ".mha"),
-        )
+        )"""
         print("Output written to: " + os.path.join(self.output_path, uuid + ".mha"))
 
     def predict(self):
@@ -107,7 +106,7 @@ class Autopet_baseline:
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
         uuid = os.path.basename(os.path.splitext(ct_mha)[0])
-        output_file_trunc = self.result_path.rstrip(".nii.gz")
+        output_file_trunc = os.path.join(self.result_path + uuid)
 
         predictor = nnUNetPredictor(
             tile_step_size=0.8,
