@@ -106,7 +106,7 @@ class Autopet_baseline:
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
         uuid = os.path.basename(os.path.splitext(ct_mha)[0])
-        output_file_trunc = os.path.join(self.result_path + uuid)
+        output_file_trunc = os.path.join(self.output_path + uuid)
 
         predictor = nnUNetPredictor(
             tile_step_size=0.8,
@@ -158,7 +158,7 @@ class Autopet_baseline:
         self.predict()
         print("Start output writing")
         self.save_datacentric(False)
-        self.write_outputs(uuid)
+        #self.write_outputs(uuid)
 
 
 if __name__ == "__main__":
