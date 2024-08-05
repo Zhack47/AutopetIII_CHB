@@ -119,7 +119,7 @@ class Autopet_baseline:
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
         ct = images[0]
-        pt = images[0]
+        pt = images[1]
         print(pt.min())
         print(pt.max())
         print(ct.min())
@@ -130,7 +130,7 @@ class Autopet_baseline:
         print(pt_win.max())
         print(ct_win.min())
         print(ct_win.max())
-        images = np.stack(ct, pt, ct_win, pt_win)
+        images = np.stack([ct, pt, ct_win, pt_win])
         print(properties)
         print(images.shape)
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
