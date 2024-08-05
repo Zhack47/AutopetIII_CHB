@@ -4,6 +4,10 @@ import subprocess
 
 import SimpleITK
 import torch
+from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
+import os
+from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 
 
 class Autopet_baseline:
@@ -88,15 +92,34 @@ class Autopet_baseline:
         Your algorithm goes here
         """
         print("nnUNet segmentation starting!")
-        cproc = subprocess.run(
-            f"nnUNetv2_predict -i {self.nii_path} -o {self.result_path} -d 512 -c 3d_fullres -f all --disable_tta",
-            shell=True,
-            check=True,
-        )
-        print(cproc)
-        # since nnUNet_predict call is split into prediction and postprocess, a pre-mature exit code is received but
-        # segmentation file not yet written. This hack ensures that all spawned subprocesses are finished before being
-        # printed.
+
+        os.environ['nnUNet_compile'] = 'F'  # on my system the T does the test image in 2m56 and F in 3m15. Not sure if
+        # 20s is worth the risk
+
+        maybe_mkdir_p(self.output_path)
+
+        trained_model_path = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
+
+        ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
+        pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
+        uuid = os.path.basename(os.path.splitext(ct_mha)[0])
+        output_file_trunc = os.path.join(self.output_path, uuid)
+
+        predictor = nnUNetPredictor(
+            tile_step_size=0.5,
+            use_mirroring=True,
+            verbose=True,
+            verbose_preprocessing=True,
+            allow_tqdm=True)
+        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0, 1, 2, 3, 4))
+        predictor.dataset_json['file_ending'] = '.mha'
+
+        # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
+        # for each individual test case so that this doesn't make sense
+        images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
+        predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
+
+
         print("Prediction finished")
 
     def save_datacentric(self, value: bool):
