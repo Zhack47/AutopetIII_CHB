@@ -3,6 +3,7 @@ import os
 import subprocess
 
 import SimpleITK
+import numpy as np
 import torch
 from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
@@ -117,6 +118,19 @@ class Autopet_baseline:
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
+        ct = images[0]
+        pt = images[0]
+        print(pt.min())
+        print(pt.max())
+        print(ct.min())
+        print(ct.max())
+        ct_win = np.clip(ct, -300, 400)
+        pt_win = np.clip(pt, 0, 20)
+        print(pt_win.min())
+        print(pt_win.max())
+        print(ct_win.min())
+        print(ct_win.max())
+        images = np.stack(ct, pt, ct_win, pt_win)
         print(properties)
         print(images.shape)
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
