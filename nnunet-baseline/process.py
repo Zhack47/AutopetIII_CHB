@@ -127,6 +127,15 @@ class Autopet_baseline:
         images = np.stack([ct, pt, ct_win, pt_win])
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
+        # Keeping only the 'lesion' class
+        out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
+        out_np = SimpleITK.GetArrayFromImage(out_image)
+        oneclass_np = np.zeros_like(out_np)
+        oneclass_np[out_np==1] = 1
+        oneclass_image = SimpleITK.GetImageFromArray(oneclass_np)
+        oneclass_image.CopyInformation(out_image)
+        SimpleITK.WriteImage(output_file_trunc+".mha")
+
 
         print("Prediction finished")
 
