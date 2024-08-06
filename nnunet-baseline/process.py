@@ -134,7 +134,7 @@ class Autopet_baseline:
         oneclass_np[out_np==1] = 1
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np)
         oneclass_image.CopyInformation(out_image)
-        SimpleITK.WriteImage(output_file_trunc+".mha")
+        SimpleITK.WriteImage(oneclass_image, output_file_trunc+".mha")
 
 
         print("Prediction finished")
