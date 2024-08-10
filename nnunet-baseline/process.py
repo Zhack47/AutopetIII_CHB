@@ -109,10 +109,10 @@ class Autopet_baseline:
         output_file_trunc = os.path.join(self.output_path + uuid)
 
         predictor = nnUNetPredictor(
-            tile_step_size=0.5,
+            tile_step_size=0.6,
             use_mirroring=False,
-            verbose=True,
-            verbose_preprocessing=True,
+            verbose=False,
+            verbose_preprocessing=False,
             allow_tqdm=True)
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
         predictor.dataset_json['file_ending'] = '.mha'
