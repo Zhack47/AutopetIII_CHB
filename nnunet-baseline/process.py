@@ -109,7 +109,7 @@ class Autopet_baseline:
         output_file_trunc = os.path.join(self.output_path + uuid)
 
         predictor = nnUNetPredictor(
-            tile_step_size=0.6,
+            tile_step_size=0.8,
             use_mirroring=False,
             verbose=False,
             verbose_preprocessing=False,
