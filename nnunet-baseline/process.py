@@ -135,9 +135,9 @@ class Autopet_baseline:
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt = pt[x_min: x_max, y_min:y_max, z_min:z_max]
 
-        src_spacing = properties["sitk_stuff"]["spacing"].GetSpacing()
-        src_origin = properties["sitk_stuff"]["origin"].GetOrigin()
-        src_direction = properties["sitk_stuff"]["direction"].GetDirection()
+        src_spacing = properties["sitk_stuff"]["spacing"]
+        src_origin = properties["sitk_stuff"]["origin"]
+        src_direction = properties["sitk_stuff"]["direction"]
 
         x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is
         y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's
