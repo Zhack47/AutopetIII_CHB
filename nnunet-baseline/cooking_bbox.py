@@ -7,7 +7,6 @@ pet_np = sitk.GetArrayFromImage(pet_sitk)
 
 def threshold_bounding_box(arr, threshold=.1):
     threshold_indices = np.where(arr > threshold)
-    print(threshold_indices)
     min_indices = [np.min(indices) for indices in threshold_indices]
     max_indices = [np.max(indices) for indices in threshold_indices]
     return tuple(min_indices), tuple(max_indices)
@@ -26,11 +25,18 @@ image_out.CopyInformation(pet_sitk)
 
 inter_image = sitk.GetImageFromArray(pet_cut)
 
+src_spacing = pet_sitk.GetSpacing()
+src_origin = pet_sitk.GetOrigin()
+src_direction = pet_sitk.GetDirection()
+
+x_mod = src_origin[0]+src_spacing[0]*src_direction[0] * z_min  # This is
+y_mod = src_origin[1]+src_spacing[1]*src_direction[4] * y_min  # SimpleITK's
+z_mod = src_origin[2]+src_spacing[2]*src_direction[8] * x_min  # fault
+dst_origin = (x_mod, y_mod, z_mod)
+
 inter_image.SetSpacing(pet_sitk.GetSpacing())
-inter_image.SetOrigin(pet_sitk.GetOrigin())
+inter_image.SetOrigin(dst_origin)
 inter_image.SetDirection(pet_sitk.GetDirection())
-print(pet_sitk.GetPixelIDValue())
-print(inter_image.GetPixelIDValue())
-print(image_out.GetPixelIDValue())
+
 sitk.WriteImage(image_out, out_seg_path)
 sitk.WriteImage(inter_image, inter_seg_path)

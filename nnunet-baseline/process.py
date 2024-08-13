@@ -94,6 +94,13 @@ class Autopet_baseline:
         """
         Your algorithm goes here
         """
+
+        def threshold_bounding_box(arr, threshold=.1):
+            threshold_indices = np.where(arr > threshold)
+            min_indices = [np.min(indices) for indices in threshold_indices]
+            max_indices = [np.max(indices) for indices in threshold_indices]
+            return tuple(min_indices), tuple(max_indices)
+
         print("nnUNet segmentation starting!")
 
         os.environ['nnUNet_compile'] = 'F'  # on my system the T does the test image in 2m56 and F in 3m15. Not sure if
@@ -121,9 +128,24 @@ class Autopet_baseline:
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
         print(properties)
-        exit()
+
         ct = images[0]
         pt = images[1]
+
+        (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
+        ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
+        pt = pt[x_min: x_max, y_min:y_max, z_min:z_max]
+
+        src_spacing = properties["sitk_stuff"]["spacing"].GetSpacing()
+        src_origin = properties["sitk_stuff"]["origin"].GetOrigin()
+        src_direction = properties["sitk_stuff"]["direction"].GetDirection()
+
+        x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is
+        y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's
+        z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * x_min  # fault
+        dst_origin = (x_mod, y_mod, z_mod)
+        properties["sitk_stuff"]["origin"] = dst_origin
+
         ct_win = np.clip(ct, -300, 400)
         pt_win = np.clip(pt, 0, 20)
         images = np.stack([ct, pt, ct_win, pt_win])
@@ -132,10 +154,14 @@ class Autopet_baseline:
         # Keeping only the 'lesion' class
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
         out_np = SimpleITK.GetArrayFromImage(out_image)
-        oneclass_np = np.zeros_like(out_np)
-        oneclass_np[out_np==1] = 1
-        oneclass_image = SimpleITK.GetImageFromArray(oneclass_np)
-        oneclass_image.CopyInformation(out_image)
+        oneclass_np = np.zeros_like(pt)
+        oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
+
+        oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
+        oneclass_image.SetOrigin(src_origin)
+        oneclass_image.SetSpacing(src_spacing)
+        oneclass_image.SetDirection(src_direction)
+
         SimpleITK.WriteImage(oneclass_image, output_file_trunc+".mha")
 
 
