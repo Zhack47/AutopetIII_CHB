@@ -129,9 +129,7 @@ class Autopet_baseline:
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
         ct = images[0]
         pt = images[1]
-        print(np.shape(pt))
-        print(np.shape(ct))
-        print(properties)
+
         (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
@@ -140,9 +138,9 @@ class Autopet_baseline:
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
 
-        x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * x_min  # This is // This is
+        x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is // This is
         y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's  // different in
-        z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * z_min  # fault  // nnUNet (;.;)
+        z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * x_min  # fault  // nnUNet (;.;)
         dst_origin = (x_mod, y_mod, z_mod)
         properties["sitk_stuff"]["origin"] = dst_origin
 
@@ -155,10 +153,7 @@ class Autopet_baseline:
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
         out_np = SimpleITK.GetArrayFromImage(out_image)
         oneclass_np = np.zeros_like(pt)
-        print(out_image.GetSpacing())
-        print(out_image.GetSize())
-        print(out_np.shape)
-        print(oneclass_np.shape)
+
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
