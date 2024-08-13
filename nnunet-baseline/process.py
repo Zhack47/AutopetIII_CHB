@@ -115,18 +115,26 @@ class Autopet_baseline:
         uuid = os.path.basename(os.path.splitext(ct_mha)[0])
         output_file_trunc = os.path.join(self.output_path + uuid)
 
+        print("Creating", end="")
         predictor = nnUNetPredictor(
             tile_step_size=0.6,
             use_mirroring=False,
             verbose=False,
             verbose_preprocessing=False,
             allow_tqdm=True)
+        print("Done")
+
+        print("Initalizing model", end="")
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
+        print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
 
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
+        print("Reading images", end="")
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
+        print("Done")
+
         ct = images[0]
         pt = images[1]
 
@@ -138,15 +146,22 @@ class Autopet_baseline:
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
 
+        ## AAAAH mais osef en fait on set la direction plus tard
         x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is // This is
         y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's  // different in
         z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * x_min  # fault  // nnUNet (;.;)
         dst_origin = (x_mod, y_mod, z_mod)
         properties["sitk_stuff"]["origin"] = dst_origin
 
+        print("Windowing..", end="")
         ct_win = np.clip(ct, -300, 400)
         pt_win = np.clip(pt_cut, 0, 20)
+        print("Done")
+
+        print("Stacking..", end="")
         images = np.stack([ct, pt_cut, ct_win, pt_win])
+        print("Done")
+
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
