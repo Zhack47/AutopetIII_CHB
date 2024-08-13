@@ -2,23 +2,25 @@ import numpy as np
 import nibabel as nib
 import SimpleITK as sitk
 
-pet_reader = sitk.ImageSeriesReader()
-fnames = pet_reader.GetGDCMSeriesFileNames("/media/zhack/DD1/rtep7_newhope/005-002/PT/AQUILAB/1.3.46.670589.28.2.14.18447.53045.64458.2.368.0.1570692895")
-pet_reader.SetFileNames(fnames)
-pet_sitk = pet_reader.Execute()
+pet_sitk = sitk.ReadImage("/home/zhack/Documents/THESE/rtep7^005-002_2019-10-09_(SUVbw).nii.gz")
 pet_np = sitk.GetArrayFromImage(pet_sitk)
-def bbox2(img):
-    rows = np.any(img, axis=1)
-    cols = np.any(img, axis=0)
-    dpt = np.any(img, axis=2)
-    print(img.shape)
-    print(rows.shape)
-    print(cols.shape)
-    print(dpt.shape)
-    exit()
-    zmin, zmax = np.where(dpt)[0][[0, -1]]
-    ymin, ymax = np.where(rows)[0][[0, -1]]
-    xmin, xmax = np.where(cols)[0][[0, -1]]
-    return img[ymin:ymax+1, xmin:xmax+1, zmin:zmax+1]
 
-bbox2(pet_np)
+def threshold_bounding_box(arr, threshold=.1):
+    threshold_indices = np.where(arr > threshold)
+    print(threshold_indices)
+    min_indices = [np.min(indices) for indices in threshold_indices]
+    max_indices = [np.max(indices) for indices in threshold_indices]
+    return tuple(min_indices), tuple(max_indices)
+
+(x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pet_np, .1)
+pet_cut = pet_np[x_min: x_max, y_min:y_max, z_min:z_max]
+seg = (pet_cut>2.5)*1
+out_seg =np.zeros_like(pet_np)
+out_seg[x_min:x_max, y_min:y_max, z_min:z_max] = seg
+print(pet_np.shape)
+print(out_seg.shape)
+out_seg_path = "/home/zhack/Documents/THESE/pet_seg-005-003.nii.gz"
+image_out = sitk.GetImageFromArray(out_seg)
+image_out.CopyInformation(pet_sitk)
+sitk.WriteImage(image_out, out_seg_path )
+sitk.WriteImage()
