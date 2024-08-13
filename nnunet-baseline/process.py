@@ -134,7 +134,7 @@ class Autopet_baseline:
         print(properties)
         (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
-        pt = pt[x_min: x_max, y_min:y_max, z_min:z_max]
+        pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
 
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
@@ -147,7 +147,7 @@ class Autopet_baseline:
         properties["sitk_stuff"]["origin"] = dst_origin
 
         ct_win = np.clip(ct, -300, 400)
-        pt_win = np.clip(pt, 0, 20)
+        pt_win = np.clip(pt_cut, 0, 20)
         images = np.stack([ct, pt, ct_win, pt_win])
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
