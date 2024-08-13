@@ -20,9 +20,9 @@ RUN python -m pip install --user -U pip && \
     mkdir -p /opt/algorithm/nnUNet_raw && \
     mkdir -p /opt/algorithm/nnUNet_preprocessed && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/imagesTs && \
-    mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/result \
+    mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/result
 
-COPY  --chown=user:user  nnUNet/ /opt/algorithm/nnUNet/
+COPY  --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet/
 RUN python -m pip install -e nnUNet
 
 ENV nnUNet_raw="/opt/algorithm/nnUNet_raw"
