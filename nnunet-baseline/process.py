@@ -127,7 +127,6 @@ class Autopet_baseline:
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
-        print(properties)
 
         ct = images[0]
         pt = images[1]
