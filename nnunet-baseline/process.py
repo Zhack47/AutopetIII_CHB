@@ -139,9 +139,9 @@ class Autopet_baseline:
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
 
-        x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is
-        y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's
-        z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * x_min  # fault
+        x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * x_min  # This is // This is
+        y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's  // different in
+        z_mod = src_origin[2] + src_spacing[2] * src_direction[8] * z_min  # fault  // nnUNet (;.;)
         dst_origin = (x_mod, y_mod, z_mod)
         properties["sitk_stuff"]["origin"] = dst_origin
 
