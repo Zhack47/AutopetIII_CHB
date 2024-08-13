@@ -148,7 +148,7 @@ class Autopet_baseline:
 
         ct_win = np.clip(ct, -300, 400)
         pt_win = np.clip(pt_cut, 0, 20)
-        images = np.stack([ct, pt, ct_win, pt_win])
+        images = np.stack([ct, pt_cut, ct_win, pt_win])
         predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
