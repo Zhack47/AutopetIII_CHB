@@ -127,10 +127,11 @@ class Autopet_baseline:
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
         images, properties = SimpleITKIO().read_images([ct_mha, pet_mha])
-
         ct = images[0]
         pt = images[1]
-
+        print(np.shape(pt))
+        print(np.shape(ct))
+        print(properties)
         (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt = pt[x_min: x_max, y_min:y_max, z_min:z_max]
@@ -154,6 +155,10 @@ class Autopet_baseline:
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
         out_np = SimpleITK.GetArrayFromImage(out_image)
         oneclass_np = np.zeros_like(pt)
+        print(out_image.GetSpacing())
+        print(out_image.GetSize())
+        print(out_np.shape)
+        print(oneclass_np.shape)
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
