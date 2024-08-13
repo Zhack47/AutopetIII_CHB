@@ -20,7 +20,17 @@ out_seg[x_min:x_max, y_min:y_max, z_min:z_max] = seg
 print(pet_np.shape)
 print(out_seg.shape)
 out_seg_path = "/home/zhack/Documents/THESE/pet_seg-005-003.nii.gz"
-image_out = sitk.GetImageFromArray(out_seg)
+inter_seg_path = "/home/zhack/Documents/THESE/pet_seg-005-003_inter.nii.gz"
+image_out = sitk.GetImageFromArray(out_seg.astype(np.uint8))
 image_out.CopyInformation(pet_sitk)
-sitk.WriteImage(image_out, out_seg_path )
-sitk.WriteImage()
+
+inter_image = sitk.GetImageFromArray(pet_cut)
+
+inter_image.SetSpacing(pet_sitk.GetSpacing())
+inter_image.SetOrigin(pet_sitk.GetOrigin())
+inter_image.SetDirection(pet_sitk.GetDirection())
+print(pet_sitk.GetPixelIDValue())
+print(inter_image.GetPixelIDValue())
+print(image_out.GetPixelIDValue())
+sitk.WriteImage(image_out, out_seg_path)
+sitk.WriteImage(inter_image, inter_seg_path)
