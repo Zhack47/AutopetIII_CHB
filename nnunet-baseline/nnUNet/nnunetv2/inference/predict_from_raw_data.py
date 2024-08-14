@@ -704,6 +704,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
         print(f"Processing image and mask")
+        print(np.unique(mask, return_counts=True))
         ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
@@ -716,7 +717,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             else len(self.dataset_json['channel_names'])
         data = dct["data"][:num_modalities]
 
-        mask_rsp = torch.argmax(dct["data"][num_modalities+1:num_modalities+3, ...], dim=0)
+        mask_rsp = torch.argmax(dct["data"][num_modalities+1:num_modalities+3, ...], dim=0, keepdim=True)
         print(dct["data"].shape)
         print(data.shape)
         print(type(mask_rsp))
