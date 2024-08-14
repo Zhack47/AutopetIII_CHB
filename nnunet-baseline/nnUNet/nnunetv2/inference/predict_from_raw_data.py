@@ -707,10 +707,11 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
-        print(self.plans_manager)
+        mask_plans = deepcopy(self.plans_manager)
+        mask_plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
         ppm = PreprocessAdapterFromNpy([mask], [segmentation_previous_stage], [image_properties],
                                        [output_file_truncated],
-                                       self.plans_manager, self.dataset_json, self.configuration_manager,
+                                       mask_plans, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
 
         if self.verbose:
