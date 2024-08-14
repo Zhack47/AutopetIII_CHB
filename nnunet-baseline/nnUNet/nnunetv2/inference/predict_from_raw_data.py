@@ -658,6 +658,186 @@ class nnUNetPredictor(object):
                 predicted_logits = predicted_logits[(slice(None), *slicer_revert_padding[1:])]
         return predicted_logits
 
+class nnUNetPredictor_efficient(nnUNetPredictor):
+    def __init__(self):
+        super().__init__()
+
+
+    def predict_logits_from_preprocessed_data_masked(self, data: torch.Tensor, mask: np.ndarray) -> torch.Tensor:
+        n_threads = torch.get_num_threads()
+        torch.set_num_threads(default_num_processes if default_num_processes < n_threads else n_threads)
+        prediction = None
+
+        for params in self.list_of_parameters:
+
+            # messing with state dict names...
+            if not isinstance(self.network, OptimizedModule):
+                self.network.load_state_dict(params)
+            else:
+                self.network._orig_mod.load_state_dict(params)
+
+            # why not leave prediction on device if perform_everything_on_device? Because this may cause the
+            # second iteration to crash due to OOM. Grabbing that with try except cause way more bloated code than
+            # this actually saves computation time
+            if prediction is None:
+                prediction = self.predict_sliding_window_return_logits_masked(data, mask).to('cpu')
+            else:
+                prediction += self.predict_sliding_window_return_logits_masked(data, mask).to('cpu')
+
+        if len(self.list_of_parameters) > 1:
+            prediction /= len(self.list_of_parameters)
+
+        if self.verbose: print('Prediction done')
+        torch.set_num_threads(n_threads)
+        return prediction
+    def predict_single_npy_array_masked(self, input_image: np.ndarray, mask:np.ndarray, image_properties: dict,
+                                 segmentation_previous_stage: np.ndarray = None,
+                                 output_file_truncated: str = None,
+                                 save_or_return_probabilities: bool = False):
+        ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
+                                       [output_file_truncated],
+                                       self.plans_manager, self.dataset_json, self.configuration_manager,
+                                       num_threads_in_multithreaded=1, verbose=self.verbose)
+        if self.verbose:
+            print('preprocessing')
+        dct = next(ppa)
+
+        if self.verbose:
+            print('predicting')
+        predicted_logits = self.predict_logits_from_preprocessed_data_masked(dct['data'], mask).cpu()
+
+        if self.verbose:
+            print('resampling to original shape')
+        if output_file_truncated is not None:
+            export_prediction_from_logits(predicted_logits, dct['data_properties'], self.configuration_manager,
+                                          self.plans_manager, self.dataset_json, output_file_truncated,
+                                          save_or_return_probabilities)
+        else:
+            ret = convert_predicted_logits_to_segmentation_with_correct_shape(predicted_logits, self.plans_manager,
+                                                                              self.configuration_manager,
+                                                                              self.label_manager,
+                                                                              dct['data_properties'],
+                                                                              return_probabilities=
+                                                                              save_or_return_probabilities)
+            if save_or_return_probabilities:
+                return ret[0], ret[1]
+            else:
+                return ret
+
+    def predict_sliding_window_return_logits_masked(self, input_image: torch.Tensor, mask: np.ndarray) \
+            -> Union[np.ndarray, torch.Tensor]:
+        with torch.no_grad():
+            assert isinstance(input_image, torch.Tensor)
+            self.network = self.network.to(self.device)
+            self.network.eval()
+
+            empty_cache(self.device)
+
+            # Autocast can be annoying
+            # If the device_type is 'cpu' then it's slow as heck on some CPUs (no auto bfloat16 support detection)
+            # and needs to be disabled.
+            # If the device_type is 'mps' then it will complain that mps is not implemented, even if enabled=False
+            # is set. Whyyyyyyy. (this is why we don't make use of enabled=False)
+            # So autocast will only be active if we have a cuda device.
+            with torch.autocast(self.device.type, enabled=True) if self.device.type == 'cuda' else dummy_context():
+                assert input_image.ndim == 4, 'input_image must be a 4D np.ndarray or torch.Tensor (c, x, y, z)'
+
+                if self.verbose:
+                    print(f'Input shape: {input_image.shape}')
+                    print("step_size:", self.tile_step_size)
+                    print("mirror_axes:", self.allowed_mirroring_axes if self.use_mirroring else None)
+
+                # if input_image is smaller than tile_size we need to pad it to tile_size.
+                data, slicer_revert_padding = pad_nd_image(input_image, self.configuration_manager.patch_size,
+                                                           'constant', {'value': 0}, True,
+                                                           None)
+
+                slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
+
+                if self.perform_everything_on_device and self.device != 'cpu':
+                    # we need to try except here because we can run OOM in which case we need to fall back to CPU as a results device
+                    try:
+                        predicted_logits = self._internal_predict_sliding_window_return_logits_masked(data, slicers, mask,
+                                                                                               self.perform_everything_on_device)
+                    except RuntimeError:
+                        print(
+                            'Prediction on device was unsuccessful, probably due to a lack of memory. Moving results arrays to CPU')
+                        empty_cache(self.device)
+                        predicted_logits = self._internal_predict_sliding_window_return_logits_masked(data, slicers, mask, False)
+                else:
+                    predicted_logits = self._internal_predict_sliding_window_return_logits_masked(data, slicers, mask,
+                                                                                           self.perform_everything_on_device)
+
+                empty_cache(self.device)
+                # revert padding
+                predicted_logits = predicted_logits[(slice(None), *slicer_revert_padding[1:])]
+        return predicted_logits
+
+    def _internal_predict_sliding_window_return_logits_masked(self,
+                                                       data: torch.Tensor,
+                                                       slicers, mask: np.ndarray,
+                                                       do_on_device: bool = True,
+                                                       ):
+        predicted_logits = n_predictions = prediction = gaussian = workon = None
+        results_device = self.device if do_on_device else torch.device('cpu')
+
+        try:
+            empty_cache(self.device)
+
+            # move data to device
+            if self.verbose:
+                print(f'move image to device {results_device}')
+            data = data.to(results_device)
+
+            # preallocate arrays
+            if self.verbose:
+                print(f'preallocating results arrays on device {results_device}')
+            predicted_logits = torch.zeros((self.label_manager.num_segmentation_heads, *data.shape[1:]),
+                                           dtype=torch.half,
+                                           device=results_device)
+            n_predictions = torch.zeros(data.shape[1:], dtype=torch.half, device=results_device)
+
+            if self.use_gaussian:
+                gaussian = compute_gaussian(tuple(self.configuration_manager.patch_size), sigma_scale=1. / 8,
+                                            value_scaling_factor=10,
+                                            device=results_device)
+            else:
+                gaussian = 1
+
+            if not self.allow_tqdm and self.verbose:
+                print(f'running prediction: {len(slicers)} steps')
+            for sl in tqdm(slicers, disable=not self.allow_tqdm):
+                workon = data[sl][None]
+                mask_act = mask[sl][None]
+                print(f"Slicer: {sl}")
+                print(f"What we work on: {np.shape(workon)}")
+                print(f"What we work with (mask): {np.shape(mask_act)}")
+                workon = workon.to(self.device)
+                percent_in_patient = sum(mask_act)/ np.prod(mask_act.shape)
+                print(f"¨Prct in patient: {percent_in_patient}")
+                if percent_in_patient>.1:
+                    prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
+                    if self.use_gaussian:
+                        prediction *= gaussian
+                else:
+                    prediction = np.zeros_like(workon)
+                    gaussian = np.zeros_like(workon)
+                predicted_logits[sl] += prediction
+                n_predictions[sl[1:]] += gaussian
+
+            predicted_logits /= n_predictions
+            # check for infs
+            if torch.any(torch.isinf(predicted_logits)):
+                raise RuntimeError('Encountered inf in predicted array. Aborting... If this problem persists, '
+                                   'reduce value_scaling_factor in compute_gaussian or increase the dtype of '
+                                   'predicted_logits to fp32')
+        except Exception as e:
+            del predicted_logits, n_predictions, prediction, gaussian, workon
+            empty_cache(self.device)
+            empty_cache(results_device)
+            raise e
+        return predicted_logits
+
 
 def predict_entry_point_modelfolder():
     import argparse
