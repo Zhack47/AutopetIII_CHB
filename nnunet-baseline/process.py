@@ -7,7 +7,7 @@ import SimpleITK
 import numpy as np
 import torch
 from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
-from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor_efficient
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 
@@ -116,7 +116,13 @@ class Autopet_baseline:
         output_file_trunc = os.path.join(self.output_path + uuid)
 
         print("Creating", end="")
-        predictor = nnUNetPredictor(
+        """predictor = nnUNetPredictor(
+            tile_step_size=0.6,
+            use_mirroring=False,
+            verbose=False,
+            verbose_preprocessing=False,
+            allow_tqdm=True)"""
+        predictor = nnUNetPredictor_efficient(
             tile_step_size=0.6,
             use_mirroring=False,
             verbose=False,
@@ -161,8 +167,10 @@ class Autopet_baseline:
         print("Stacking..", end="")
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
-
-        predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
+        mask = np.zeros_like(ct)
+        i,j,k = np.shape(ct)
+        mask[i//4:3*(i//4), j//4:3*(j//4), k//4:3*(k//4)] = np.ones((3*(i//4) - i//4, 3*(j//4)-j//4, 3*(k//4)-k//4))
+        predictor.predict_single_npy_array(images, mask, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
