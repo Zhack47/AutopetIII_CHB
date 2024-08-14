@@ -729,7 +729,9 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(dctm["data_properties"])
         print(dct["data"].shape)
         print(dctm["data"].shape)
-        data = dct["data"][:self.label_manager.num_segmentation_heads,...]
+        num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
+            else len(self.dataset_json['channel_names'])
+        data = dct["data"][:num_modalities,...]
         print(data.shape)
         if self.verbose:
             print('predicting')
