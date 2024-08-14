@@ -823,7 +823,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 mask_act = mask[None][sl]
                 print(f"What we work with (mask_act): {np.shape(mask_act)}")
                 workon = workon.to(self.device)
-                percent_in_patient = sum(mask_act)/ np.prod(mask_act.shape)
+                percent_in_patient = np.sum(mask_act)/ np.prod(mask_act.shape)
                 print(f"¨Prct in patient: {percent_in_patient}")
                 if percent_in_patient>.1:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
