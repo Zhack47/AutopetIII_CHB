@@ -718,7 +718,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
 
         if self.verbose:
             print('preprocessing')
-
+        print(input_image.shape)
+        print(mask.shape)
         dct = next(ppa)
         dctm = next(ppm)
         print(dct.keys())
