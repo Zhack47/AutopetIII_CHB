@@ -169,11 +169,8 @@ class Autopet_baseline:
         print("Done")
         mask = np.zeros_like(pt_cut)[None]
 
-        print(f"1: {np.shape(pt_cut)}")
-        print(f"1: {np.shape(mask)}")
         i,j,k = np.shape(ct)
         mask[:, i//4:3*(i//4), j//4:3*(j//4), k//4:3*(k//4)] = np.ones((3*(i//4) - i//4, 3*(j//4)-j//4, 3*(k//4)-k//4))
-        print(f"2: {np.shape(mask)}")
         predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class

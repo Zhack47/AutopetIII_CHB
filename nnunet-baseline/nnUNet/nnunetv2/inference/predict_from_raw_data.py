@@ -843,7 +843,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 print(f"What we work on: {np.shape(workon)}")
                 print(f"What we work with (mask_act): {np.shape(mask_act)}")
                 workon = workon.to(self.device)
-                percent_in_patient = np.sum(mask_act)/ np.prod(mask_act.shape)
+                percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
                 print(f"¨Prct in patient: {percent_in_patient}")
                 print(f"Gausssian shape: {np.shape(gaussian)}")
                 if percent_in_patient>.1:
