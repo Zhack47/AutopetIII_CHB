@@ -703,12 +703,12 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  segmentation_previous_stage: np.ndarray = None,
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
+        print(f"Processing image")
         ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
-        print(input_image.shape)
-        print(mask.shape)
+        print(f"Processing mask")
         mask_plans = deepcopy(self.plans_manager)
         mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
         ppm = PreprocessAdapterFromNpy([mask], [segmentation_previous_stage], [image_properties],
@@ -776,7 +776,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 # Same for the mask
                 print(f"3: {np.shape(mask)}")
                 mask = pad_nd_image(mask, self.configuration_manager.patch_size,
-                                    'constant', {'constant_values': 0}, False, None)
+                                    'constant', {'value': 0}, False, None)
                 print(f"4: {np.shape(mask)}")
 
                 slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
