@@ -716,9 +716,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             else len(self.dataset_json['channel_names'])
         data = dct["data"][:num_modalities]
 
-        mask_rsp = (dct["data"][num_modalities:num_modalities+1, ...]>1)*1
+        mask_rsp = dct["data"][num_modalities:num_modalities+1, ...]
         print(data.shape)
         print(mask_rsp.shape)
+        mask_rsp = (mask_rsp>1)*1
         print(np.unique(mask_rsp, return_counts=True))
         if self.verbose:
             print('predicting')
