@@ -710,7 +710,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(input_image.shape)
         print(mask.shape)
         mask_plans = deepcopy(self.plans_manager)
-        mask_plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
+        mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
         ppm = PreprocessAdapterFromNpy([mask], [segmentation_previous_stage], [image_properties],
                                        [output_file_truncated],
                                        mask_plans, self.dataset_json, self.configuration_manager,
