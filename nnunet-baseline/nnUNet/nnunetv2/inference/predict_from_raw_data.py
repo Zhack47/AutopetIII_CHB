@@ -717,7 +717,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             else len(self.dataset_json['channel_names'])
         data = dct["data"][:num_modalities]
 
-        mask_rsp = torch.argmax(dct["data"][num_modalities+1:num_modalities+3, ...], dim=0, keepdim=True)
+        mask_rsp = torch.argmax(dct["data"][num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
         print(dct["data"].shape)
         print(dct["data_properties"])
         print(data.shape)
