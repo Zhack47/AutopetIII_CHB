@@ -836,7 +836,6 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
                 print(np.shape(data))
                 print(np.shape(mask))
-                print(np.shape(mask[None]))
                 workon = data[sl][None]
                 mask_act = mask[sl]
                 print(f"Slicer: {sl}")
