@@ -703,30 +703,20 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  segmentation_previous_stage: np.ndarray = None,
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
-        print(f"Processing image")
-        ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
+        print(f"Processing image and mask")
+        ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
-                                       num_threads_in_multithreaded=1, verbose=self.verbose)
-        print(f"Processing mask")
-        mask_plans = deepcopy(self.plans_manager)
-        mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
-        mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["is_seg"]=True
-        ppm = PreprocessAdapterFromNpy([mask], [mask], [image_properties],
-                                       [output_file_truncated],
-                                       mask_plans, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
 
         if self.verbose:
             print('preprocessing')
         dct = next(ppa)
-        dctm = next(ppm)
         num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
             else len(self.dataset_json['channel_names'])
-        data = dct["data"]
-        print(np.unique(dctm["data"], return_counts=True))
+        data = dct["data"][:num_modalities]
 
-        mask_rsp = (dctm["data"][1:, ...]>1)*1
+        mask_rsp = (dct["data"][num_modalities:num_modalities+1, ...]>1)*1
         print(data.shape)
         print(mask_rsp.shape)
         print(np.unique(mask_rsp, return_counts=True))
