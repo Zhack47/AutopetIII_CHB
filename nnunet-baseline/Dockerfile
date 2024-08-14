@@ -12,9 +12,9 @@ WORKDIR /opt/algorithm
 ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
-COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 COPY --chown=algorithm:algorithm nnUNet_results /opt/algorithm/nnUNet_results
 COPY --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet
+COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 
 RUN python -m pip install --user -U pip && \
     python -m pip install --user -r requirements.txt && \
