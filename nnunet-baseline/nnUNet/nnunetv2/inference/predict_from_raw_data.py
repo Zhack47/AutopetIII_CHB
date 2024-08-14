@@ -825,15 +825,20 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 workon = workon.to(self.device)
                 percent_in_patient = np.sum(mask_act)/ np.prod(mask_act.shape)
                 print(f"¨Prct in patient: {percent_in_patient}")
+                print(f"Gausssian shape: {np.shape(gaussian)}")
                 if percent_in_patient>.1:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
                     if self.use_gaussian:
                         prediction *= gaussian
+                    predicted_logits[sl] += prediction
+                    n_predictions[sl[1:]] += gaussian
                 else:
-                    prediction = torch.zeros_like(workon).to(results_device)
-                    gaussian = torch.zeros_like(workon).to(results_device)
-                predicted_logits[sl] += prediction
-                n_predictions[sl[1:]] += gaussian
+                    predicted_logits[sl] += torch.zeros((self.label_manager.num_segmentation_heads, *workon.shape[1:])
+                                                        ).to(results_device)
+                    if self.use_gaussian:
+                        n_predictions[sl[1:]] += torch.zeros_like(gaussian).to(results_device)
+                    else:
+                        n_predictions[sl[1:]] += 0.
 
             predicted_logits /= n_predictions
             # check for infs
