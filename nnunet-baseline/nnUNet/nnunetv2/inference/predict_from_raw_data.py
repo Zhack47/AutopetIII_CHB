@@ -704,7 +704,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
         print(f"Processing image")
-        ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
+        ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
@@ -729,7 +729,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(dctm["data_properties"])
         print(dct["data"].shape)
         print(dctm["data"].shape)
-
+        data = dct["data"][:self.label_manager.num_segmentation_heads,...]
+        print(data.shape)
         if self.verbose:
             print('predicting')
         predicted_logits = self.predict_logits_from_preprocessed_data_masked(dct['data'], dctm["data"]).cpu()
