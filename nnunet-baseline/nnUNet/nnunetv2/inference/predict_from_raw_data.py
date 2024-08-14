@@ -733,7 +733,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(data.shape)
         if self.verbose:
             print('predicting')
-        predicted_logits = self.predict_logits_from_preprocessed_data_masked(dct['data'], dctm["data"]).cpu()
+        predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, dctm["data"]).cpu()
 
         if self.verbose:
             print('resampling to original shape')
