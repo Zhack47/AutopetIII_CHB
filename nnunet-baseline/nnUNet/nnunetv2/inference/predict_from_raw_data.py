@@ -719,6 +719,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
 
         mask_rsp = torch.argmax(dct["data"][num_modalities+1:num_modalities+3, ...], dim=0, keepdim=True)
         print(dct["data"].shape)
+        print(dct["data_properties"])
         print(data.shape)
         print(type(mask_rsp))
         print(mask_rsp.shape)
