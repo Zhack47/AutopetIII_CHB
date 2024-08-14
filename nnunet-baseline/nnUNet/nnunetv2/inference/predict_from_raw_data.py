@@ -761,9 +761,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                                            'constant', {'value': 0}, True,
                                                            None)
                 # Same for the mask
-
+                print(f"3: {np.shape(mask)}")
                 mask = pad_nd_image(mask, self.configuration_manager.patch_size,
                                     'constant', {'constant_values': 0}, False, None)
+                print(f"4: {np.shape(mask)}")
 
                 slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
 
