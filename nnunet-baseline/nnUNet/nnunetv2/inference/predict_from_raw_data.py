@@ -841,6 +841,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             if not self.allow_tqdm and self.verbose:
                 print(f'running prediction: {len(slicers)} steps')
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
+                print(self.label_manager.num_segmentation_heads)
                 print(np.shape(data))
                 print(np.shape(mask))
                 workon = data[sl][None]
