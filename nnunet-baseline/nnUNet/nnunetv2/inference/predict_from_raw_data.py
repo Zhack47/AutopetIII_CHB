@@ -710,9 +710,9 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
         print(f"Processing mask")
         mask_plans = deepcopy(self.plans_manager)
-        mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=1
+        mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["order"]=0
         mask_plans.plans["configurations"]["3d_fullres"]["resampling_fn_data_kwargs"]["is_seg"]=True
-        ppm = PreprocessAdapterFromNpy([mask], [segmentation_previous_stage], [image_properties],
+        ppm = PreprocessAdapterFromNpy([mask], [mask], [image_properties],
                                        [output_file_truncated],
                                        mask_plans, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
@@ -726,7 +726,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         data = dct["data"]
         print(np.unique(dctm["data"], return_counts=True))
 
-        mask_rsp = (dctm["data"]>1)*1
+        mask_rsp = (dctm["data"][1:, ...]>1)*1
         print(data.shape)
         print(mask_rsp.shape)
         print(np.unique(mask_rsp, return_counts=True))
