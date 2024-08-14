@@ -760,6 +760,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 data, slicer_revert_padding = pad_nd_image(input_image, self.configuration_manager.patch_size,
                                                            'constant', {'value': 0}, True,
                                                            None)
+                # Same for the mask
+
+                mask = pad_nd_image(mask, self.configuration_manager.patch_size,
+                                    'constant', {'value': 0}, False, None)
 
                 slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
 
@@ -833,7 +837,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                     predicted_logits[sl] += prediction
                     n_predictions[sl[1:]] += gaussian
                 else:
-                    predicted_logits[sl] += torch.zeros((self.label_manager.num_segmentation_heads, *workon.shape[1:])
+                    predicted_logits[sl] += torch.zeros((self.label_manager.num_segmentation_heads, *workon.shape[2:])
                                                         ).to(results_device)
                     if self.use_gaussian:
                         n_predictions[sl[1:]] += torch.zeros_like(gaussian).to(results_device)
