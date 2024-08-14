@@ -124,7 +124,7 @@ class Autopet_baseline:
             allow_tqdm=True)"""
         predictor = nnUNetPredictor_efficient(
             tile_step_size=0.6,
-            use_mirroring=False,
+            use_mirroring=True,
             verbose=False,
             verbose_preprocessing=True,
             allow_tqdm=True)
@@ -171,7 +171,7 @@ class Autopet_baseline:
 
         #i,j,k = np.shape(pt_cut)
         #mask[:, 1:-1, 1:-1, 1:-1] += np.ones((i-2, j-2, k-2))
-        mask = (pt_cut>.2)*1+1
+        mask = (pt_cut>1.)*1+1
         mask = mask[None]
         print(mask.shape)
         predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)

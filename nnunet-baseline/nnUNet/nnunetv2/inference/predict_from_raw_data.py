@@ -774,10 +774,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                                            'constant', {'value': 0}, True,
                                                            None)
                 # Same for the mask
-                print(f"3: {np.shape(mask)}")
                 mask = pad_nd_image(mask, self.configuration_manager.patch_size,
                                     'constant', {'value': 0}, False, None)
-                print(f"4: {np.shape(mask)}")
 
                 slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
 
@@ -839,14 +837,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 print(np.shape(mask))
                 workon = data[sl][None]
                 mask_act = mask[sl]
-                print(f"Slicer: {sl}")
-                print(f"What we work on: {np.shape(workon)}")
-                print(f"What we work with (mask_act): {np.shape(mask_act)}")
                 workon = workon.to(self.device)
                 percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
-                print(f"¨Prct in patient: {percent_in_patient}")
-                print(f"Gausssian shape: {np.shape(gaussian)}")
-                if percent_in_patient>.1:
+                print(f"Prct in patient: {percent_in_patient}")
+                if percent_in_patient>.2:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
                     if self.use_gaussian:
                         prediction *= gaussian
