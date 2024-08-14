@@ -721,8 +721,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
 
         dct = next(ppa)
         dctm = next(ppm)
-        print(dct)
-        print(dctm)
+        print(dct.keys())
+        print(dctm.keys())
+        print(dct["data"].shape)
+        print(dctm["data"].shape)
 
         if self.verbose:
             print('predicting')
