@@ -720,10 +720,13 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             print('preprocessing')
         print(input_image.shape)
         print(mask.shape)
+        print(image_properties)
         dct = next(ppa)
         dctm = next(ppm)
         print(dct.keys())
         print(dctm.keys())
+        print(dct["data_properties"])
+        print(dctm["data_properties"].shape)
         print(dct["data"].shape)
         print(dctm["data"].shape)
 
