@@ -820,7 +820,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 print(f"Slicer: {sl}")
                 print(f"What we work on: {np.shape(workon)}")
                 print(f"What we work with (mask): {np.shape(mask)}")
-                mask_act = mask[sl][None]
+                mask_act = mask[None][sl]
+                print(f"What we work with (mask_act): {np.shape(mask_act)}")
                 workon = workon.to(self.device)
                 percent_in_patient = sum(mask_act)/ np.prod(mask_act.shape)
                 print(f"¨Prct in patient: {percent_in_patient}")
