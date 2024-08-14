@@ -704,7 +704,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
         print(f"Processing image")
-        ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
+        ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
@@ -731,11 +731,13 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(dctm["data"].shape)
         num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
             else len(self.dataset_json['channel_names'])
-        data = dct["data"][:num_modalities,...]
+        data = dct["data"]
+        mask_rsp = (dctm["data"]>1)*1
         print(data.shape)
+        print(mask_rsp.shape)
         if self.verbose:
             print('predicting')
-        predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, dctm["data"]).cpu()
+        predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, mask_rsp).cpu()
 
         if self.verbose:
             print('resampling to original shape')
