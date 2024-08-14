@@ -830,8 +830,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                     if self.use_gaussian:
                         prediction *= gaussian
                 else:
-                    prediction = np.zeros_like(workon)
-                    gaussian = np.zeros_like(workon)
+                    prediction = torch.zeros_like(workon).to(results_device)
+                    gaussian = torch.zeros_like(workon).to(results_device)
                 predicted_logits[sl] += prediction
                 n_predictions[sl[1:]] += gaussian
 
