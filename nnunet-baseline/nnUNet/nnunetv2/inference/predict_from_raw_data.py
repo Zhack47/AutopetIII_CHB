@@ -707,13 +707,22 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
+        print(self.plans_manager)
+        ppm = PreprocessAdapterFromNpy([mask], [segmentation_previous_stage], [image_properties],
+                                       [output_file_truncated],
+                                       self.plans_manager, self.dataset_json, self.configuration_manager,
+                                       num_threads_in_multithreaded=1, verbose=self.verbose)
+
         if self.verbose:
             print('preprocessing')
         dct = next(ppa)
+        dctm = next(ppm)
+        print(dct)
+        print(dctm)
 
         if self.verbose:
             print('predicting')
-        predicted_logits = self.predict_logits_from_preprocessed_data_masked(dct['data'], mask).cpu()
+        predicted_logits = self.predict_logits_from_preprocessed_data_masked(dct['data'], dctm["data"]).cpu()
 
         if self.verbose:
             print('resampling to original shape')
