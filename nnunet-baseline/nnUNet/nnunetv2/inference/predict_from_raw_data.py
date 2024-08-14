@@ -718,23 +718,17 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
 
         if self.verbose:
             print('preprocessing')
-        print(input_image.shape)
-        print(mask.shape)
-        print(image_properties)
         dct = next(ppa)
         dctm = next(ppm)
-        print(dct.keys())
-        print(dctm.keys())
-        print(dct["data_properties"])
-        print(dctm["data_properties"])
-        print(dct["data"].shape)
-        print(dctm["data"].shape)
         num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
             else len(self.dataset_json['channel_names'])
         data = dct["data"]
+        print(np.unique(dctm["data"], return_counts=True))
+
         mask_rsp = (dctm["data"]>1)*1
         print(data.shape)
         print(mask_rsp.shape)
+        print(np.unique(mask_rsp, return_counts=True))
         if self.verbose:
             print('predicting')
         predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, mask_rsp).cpu()
