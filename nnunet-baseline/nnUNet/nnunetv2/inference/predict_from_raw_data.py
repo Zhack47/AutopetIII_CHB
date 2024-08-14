@@ -838,7 +838,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 print(np.shape(mask))
                 print(np.shape(mask[None]))
                 workon = data[sl][None]
-                mask_act = mask[None][sl]
+                mask_act = mask[sl]
                 print(f"Slicer: {sl}")
                 print(f"What we work on: {np.shape(workon)}")
                 print(f"What we work with (mask_act): {np.shape(mask_act)}")
