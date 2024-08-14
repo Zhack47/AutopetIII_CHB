@@ -126,7 +126,7 @@ class Autopet_baseline:
             tile_step_size=0.6,
             use_mirroring=False,
             verbose=False,
-            verbose_preprocessing=False,
+            verbose_preprocessing=True,
             allow_tqdm=True)
         print("Done")
 
