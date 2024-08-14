@@ -659,8 +659,17 @@ class nnUNetPredictor(object):
         return predicted_logits
 
 class nnUNetPredictor_efficient(nnUNetPredictor):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,
+                 tile_step_size: float = 0.5,
+                 use_gaussian: bool = True,
+                 use_mirroring: bool = True,
+                 perform_everything_on_device: bool = True,
+                 device: torch.device = torch.device('cuda'),
+                 verbose: bool = False,
+                 verbose_preprocessing: bool = False,
+                 allow_tqdm: bool = True):
+        super().__init__(tile_step_size, use_gaussian,use_mirroring, perform_everything_on_device, device,
+                         verbose, verbose_preprocessing, allow_tqdm)
 
 
     def predict_logits_from_preprocessed_data_masked(self, data: torch.Tensor, mask: np.ndarray) -> torch.Tensor:
