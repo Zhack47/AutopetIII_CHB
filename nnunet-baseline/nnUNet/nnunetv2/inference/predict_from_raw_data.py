@@ -726,7 +726,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         print(dct.keys())
         print(dctm.keys())
         print(dct["data_properties"])
-        print(dctm["data_properties"].shape)
+        print(dctm["data_properties"])
         print(dct["data"].shape)
         print(dctm["data"].shape)
 
