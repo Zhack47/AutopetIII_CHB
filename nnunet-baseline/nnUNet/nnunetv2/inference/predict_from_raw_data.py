@@ -820,11 +820,12 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             if not self.allow_tqdm and self.verbose:
                 print(f'running prediction: {len(slicers)} steps')
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
+                print(np.shape(data))
+                print(np.shape(mask))
                 workon = data[sl][None]
+                mask_act = mask[None][sl]
                 print(f"Slicer: {sl}")
                 print(f"What we work on: {np.shape(workon)}")
-                print(f"What we work with (mask): {np.shape(mask)}")
-                mask_act = mask[None][sl]
                 print(f"What we work with (mask_act): {np.shape(mask_act)}")
                 workon = workon.to(self.device)
                 percent_in_patient = np.sum(mask_act)/ np.prod(mask_act.shape)
