@@ -704,7 +704,6 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
         print(f"Processing image and mask")
-        print(np.unique(mask, return_counts=True))
         ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
