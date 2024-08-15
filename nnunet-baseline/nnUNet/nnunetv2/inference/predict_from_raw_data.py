@@ -718,12 +718,6 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         data = dct["data"][:num_modalities]
 
         mask_rsp = torch.argmax(dct["data"][num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
-        print(dct["data"].shape)
-        print(dct["data_properties"])
-        print(data.shape)
-        print(type(mask_rsp))
-        print(mask_rsp.shape)
-        print(np.unique(mask_rsp, return_counts=True))
         if self.verbose:
             print('predicting')
         predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, mask_rsp).cpu()
@@ -832,14 +826,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
             if not self.allow_tqdm and self.verbose:
                 print(f'running prediction: {len(slicers)} steps')
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
-                print(self.label_manager.num_segmentation_heads)
-                print(np.shape(data))
-                print(np.shape(mask))
                 workon = data[sl][None]
                 mask_act = mask[sl]
                 workon = workon.to(self.device)
                 percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
-                print(f"Prct in patient: {percent_in_patient}")
                 if percent_in_patient>.2:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
                     if self.use_gaussian:
