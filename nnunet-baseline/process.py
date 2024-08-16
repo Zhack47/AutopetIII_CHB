@@ -132,7 +132,7 @@ class Autopet_baseline:
 
         print("Initalizing model", end="")
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
-        # predictor.allowed_mirroring_axes = (1, 2)
+        predictor.allowed_mirroring_axes = (1, 2)
         # predictor.configuration_manager.configuration["patch_size"] = [128, 128, 128]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
