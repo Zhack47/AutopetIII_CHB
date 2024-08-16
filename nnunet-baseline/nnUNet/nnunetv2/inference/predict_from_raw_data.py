@@ -837,7 +837,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                     predicted_logits[sl] += prediction
                     n_predictions[sl[1:]] += gaussian
                 else:
-                    print("Skipping patch")
+                    # print("Skipping patch")
                     predicted_logits[sl] += torch.zeros((self.label_manager.num_segmentation_heads, *workon.shape[2:])
                                                         ).to(results_device)
                     if self.use_gaussian:
