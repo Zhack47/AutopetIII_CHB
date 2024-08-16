@@ -45,7 +45,7 @@ expected_output = sitk.GetArrayFromImage(sitk.ReadImage('/expected_output/psma_9
 
 print(sum(sum(sum(expected_output))))
 print(sum(sum(sum(output))))
-mse = sum(sum(sum((output - expected_output) ** 2)))
+mse = sum(sum(sum((abs(output - expected_output)) ** 2)))
 if mse < 10:
     print('Test passed!')
 else:
