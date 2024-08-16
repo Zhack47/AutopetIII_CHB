@@ -123,7 +123,7 @@ class Autopet_baseline:
             verbose_preprocessing=False,
             allow_tqdm=True)"""
         predictor = nnUNetPredictor_efficient(
-            tile_step_size=0.6,
+            tile_step_size=0.8,
             use_mirroring=True,
             verbose=True,
             verbose_preprocessing=True,
@@ -133,7 +133,7 @@ class Autopet_baseline:
         print("Initalizing model", end="")
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
         # predictor.allowed_mirroring_axes = (1, 2)
-        predictor.configuration_manager.configuration["patch_size"] = [128, 128, 128]
+        # predictor.configuration_manager.configuration["patch_size"] = [128, 128, 128]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
 
