@@ -168,7 +168,7 @@ class Autopet_baseline:
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
 
-        mask = (pt_cut>1.)*1+1
+        mask = (pt_cut>.5)*1+1
         mask = mask[None]
         predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
 
