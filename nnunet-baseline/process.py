@@ -132,7 +132,7 @@ class Autopet_baseline:
 
         print("Initalizing model", end="")
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
-        predictor.plans_manager.plans["configurations"]["3d_fullres"]["patch_size"] = [160, 160, 160]
+        predictor.plans_manager.plans["configurations"]["3d_fullres"]["patch_size"] = [128, 128, 128]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
 
@@ -169,7 +169,7 @@ class Autopet_baseline:
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
 
-        mask = (pt_cut>2.)*1+1
+        mask = (pt_cut>2.5)*1+1
         mask = mask[None]
         predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
 
