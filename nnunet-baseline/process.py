@@ -123,7 +123,7 @@ class Autopet_baseline:
             verbose_preprocessing=False,
             allow_tqdm=True)"""
         predictor = nnUNetPredictor_efficient(
-            tile_step_size=0.8,
+            tile_step_size=0.6,
             use_mirroring=True,
             verbose=True,
             verbose_preprocessing=True,
@@ -170,7 +170,7 @@ class Autopet_baseline:
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
 
-        mask = (pt_cut>4)*1+1
+        mask = (pt_cut>2.5)*1+1
         mask = mask[None]
         predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
 
