@@ -132,6 +132,7 @@ class Autopet_baseline:
 
         print("Initalizing model", end="")
         predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
+        predictor.configuration_manager["configurations"]["3d_fullres"]["patch_size"] = [160, 160, 160]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
 
