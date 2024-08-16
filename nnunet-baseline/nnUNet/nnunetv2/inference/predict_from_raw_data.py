@@ -830,7 +830,7 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 workon = workon.to(self.device)
                 #percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
                 nb_in_patient_high = torch.sum(mask_act)
-                if nb_in_patient_high>10:
+                if nb_in_patient_high>40:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
                     if self.use_gaussian:
                         prediction *= gaussian
