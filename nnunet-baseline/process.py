@@ -103,7 +103,7 @@ class Autopet_baseline:
 
         print("nnUNet segmentation starting!")
 
-        os.environ['nnUNet_compile'] = 'T'  # on my system the T does the test image in 2m56 and F in 3m15. Not sure if
+        os.environ['nnUNet_compile'] = 'F'  # on my system the T does the test image in 2m56 and F in 3m15. Not sure if
         # 20s is worth the risk
 
         maybe_mkdir_p(self.output_path)

@@ -714,9 +714,10 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         dct = next(ppa)
         num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
             else len(self.dataset_json['channel_names'])
-        data = dct["data"][:num_modalities]
+        data_ = dct["data"]
+        data = data_[:num_modalities]
 
-        mask_rsp = torch.argmax(dct["data"][num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
+        mask_rsp = torch.argmax(data_[num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
         if self.verbose:
             print('predicting')
         predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, mask_rsp).cpu()
