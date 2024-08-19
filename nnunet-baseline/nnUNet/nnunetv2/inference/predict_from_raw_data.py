@@ -704,7 +704,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                  output_file_truncated: str = None,
                                  save_or_return_probabilities: bool = False):
         print(f"Processing image and mask")
-        ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
+        #ppa = PreprocessAdapterFromNpy([input_image], [mask], [image_properties],
+        ppa = PreprocessAdapterFromNpy([input_image], [segmentation_previous_stage], [image_properties],
                                        [output_file_truncated],
                                        self.plans_manager, self.dataset_json, self.configuration_manager,
                                        num_threads_in_multithreaded=1, verbose=self.verbose)
@@ -715,9 +716,9 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
         num_modalities = len(self.dataset_json['modality']) if 'modality' in self.dataset_json.keys() \
             else len(self.dataset_json['channel_names'])
         data_ = dct["data"]
-        data = data_[:num_modalities]
-
-        mask_rsp = torch.argmax(data_[num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
+        data = data_  # [:num_modalities]
+        mask_rsp=None
+        # mask_rsp = torch.argmax(data_[num_modalities:num_modalities+2, ...], dim=0, keepdim=True)
         if self.verbose:
             print('predicting')
         predicted_logits = self.predict_logits_from_preprocessed_data_masked(data, mask_rsp).cpu()
@@ -768,8 +769,8 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                                                            'constant', {'value': 0}, True,
                                                            None)
                 # Same for the mask
-                mask = pad_nd_image(mask, self.configuration_manager.patch_size,
-                                    'constant', {'value': 0}, False, None)
+                #mask = pad_nd_image(mask, self.configuration_manager.patch_size,
+                #                    'constant', {'value': 0}, False, None)
 
                 slicers = self._internal_get_sliding_window_slicers(data.shape[1:])
 
@@ -827,11 +828,11 @@ class nnUNetPredictor_efficient(nnUNetPredictor):
                 print(f'running prediction: {len(slicers)} steps')
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
                 workon = data[sl][None]
-                mask_act = mask[sl]
+                # mask_act = mask[sl]
                 workon = workon.to(self.device)
-                percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
+                #percent_in_patient = torch.sum(mask_act)/ np.prod(mask_act.shape)
                 #nb_in_patient_high = torch.sum(mask_act)
-                if percent_in_patient>.1:
+                if True:  # percent_in_patient>.1:
                     prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
                     if self.use_gaussian:
                         prediction *= gaussian
