@@ -108,7 +108,8 @@ class Autopet_baseline:
 
         maybe_mkdir_p(self.output_path)
 
-        trained_model_path = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
+        trained_model_path_psma = "nnUNet_results/Dataset514_AUTOPETIII_SW_PSMA/nnUNetTrainer__nnUNetPlans__3d_fullres"
+        trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer__nnUNetPlans__3d_fullres"
 
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
@@ -116,26 +117,20 @@ class Autopet_baseline:
         output_file_trunc = os.path.join(self.output_path + uuid)
 
         print("Creating", end="")
-        """predictor = nnUNetPredictor(
+        predictor = nnUNetPredictor(
             tile_step_size=0.6,
             use_mirroring=False,
             verbose=False,
             verbose_preprocessing=False,
-            allow_tqdm=True)"""
-        predictor = nnUNetPredictor_efficient(
+            allow_tqdm=True)
+        """predictor = nnUNetPredictor_efficient(
             tile_step_size=0.6,
             use_mirroring=True,
             verbose=True,
             verbose_preprocessing=True,
-            allow_tqdm=True)
+            allow_tqdm=True)"""
         print("Done")
 
-        print("Initalizing model", end="")
-        predictor.initialize_from_trained_model_folder(trained_model_path, use_folds=(0,1,2,3,4))
-        predictor.allowed_mirroring_axes = (1, 2)
-        #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
-        print("Done")
-        predictor.dataset_json['file_ending'] = '.mha'
 
         # ideally we would like to use predictor.predict_from_files but this stupid docker container will be called
         # for each individual test case so that this doesn't make sense
@@ -153,7 +148,20 @@ class Autopet_baseline:
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
+        def fn_de_leo(a,b):
+            return "psma"
+        tracer = fn_de_leo(pt, src_spacing)
 
+        print("Initalizing model", end="")
+        if tracer=="psma":
+            predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4))
+        elif tracer=="fdg":
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4))
+
+        predictor.allowed_mirroring_axes = (1, 2)
+        #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
+        print("Done")
+        predictor.dataset_json['file_ending'] = '.mha'
         ## AAAAH mais osef en fait on set la direction plus tard
         x_mod = src_origin[0] + src_spacing[0] * src_direction[0] * z_min  # This is // This is
         y_mod = src_origin[1] + src_spacing[1] * src_direction[4] * y_min  # SimpleITK's  // different in
