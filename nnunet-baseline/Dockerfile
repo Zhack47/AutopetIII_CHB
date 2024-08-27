@@ -13,7 +13,6 @@ ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
 COPY --chown=algorithm:algorithm nnUNet_results /opt/algorithm/nnUNet_results
-COPY --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet
 
 RUN python -m pip install --user -U pip && \
     python -m pip install --user -r requirements.txt && \
@@ -22,6 +21,8 @@ RUN python -m pip install --user -U pip && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/imagesTs && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/result
 
+
+COPY --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet
 RUN python -m pip install -e nnUNet
 
 

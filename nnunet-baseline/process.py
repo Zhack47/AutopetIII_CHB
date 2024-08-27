@@ -150,10 +150,7 @@ class Autopet_baseline:
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
-        out, _ = TracerDiscriminator("params.json")(pt, src_spacing)
-        def fn_de_leo(a,b):
-            return "psma"
-        tracer = fn_de_leo(pt, src_spacing)
+        tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
 
         print("Initalizing model", end="")
         print(f"Using model for {tracer}")
