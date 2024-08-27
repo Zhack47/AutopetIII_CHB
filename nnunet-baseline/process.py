@@ -7,9 +7,10 @@ import SimpleITK
 import numpy as np
 import torch
 from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
-from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor_efficient
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPredictor_efficient
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
+from .tracer_discriminator import TracerDiscriminator
 
 
 class Autopet_baseline:
@@ -148,6 +149,7 @@ class Autopet_baseline:
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
+        out, _ = TracerDiscriminator("params.json")(pt, src_spacing)
         def fn_de_leo(a,b):
             return "psma"
         tracer = fn_de_leo(pt, src_spacing)

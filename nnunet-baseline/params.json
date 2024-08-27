@@ -1,0 +1,33 @@
+{
+    "weights": {
+        "profile" : 1.0,
+        "spatial" : 0.0,
+        "statistical": 1.0
+    },
+    "profile":{
+        "bg_thresh": 0.5,
+        "ratio_thresh":2.0
+    },
+
+    "spatial":{
+        "fdg":[
+            [2.03,2.03,3]
+        ],
+        "psma": [
+            [4.07,4.07,2],
+            [4.07,4.07,5],
+            [2.73,2.73,3.27]
+        ]
+    },
+
+    "statistical":{
+        "bg_thresh":0.5,
+        "fdg": {
+            "mean": 0.094
+        },
+        "psma": {
+            "mean": 0.155
+        }
+    }
+
+}
