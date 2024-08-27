@@ -145,7 +145,8 @@ class Autopet_baseline:
         (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
-
+        print(pt.shape)
+        print(pt_cut.shape)
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
