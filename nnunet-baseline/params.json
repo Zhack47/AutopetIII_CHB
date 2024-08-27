@@ -23,10 +23,10 @@
     "statistical":{
         "bg_thresh":0.5,
         "fdg": {
-            "mean": 0.094
+            "mean": 1.377
         },
         "psma": {
-            "mean": 0.155
+            "mean": 1.962
         }
     }
 
