@@ -10,7 +10,7 @@ from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPredictor_efficient
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
-from tracer_discriminator import TracerDiscriminator
+from tracer_discriminator import TracerDiscriminator, Tracer
 
 
 class Autopet_baseline:
@@ -111,6 +111,7 @@ class Autopet_baseline:
 
         trained_model_path_psma = "nnUNet_results/Dataset514_AUTOPETIII_SW_PSMA/nnUNetTrainer__nnUNetPlans__3d_fullres"
         trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer__nnUNetPlans__3d_fullres"
+        trained_model_path_ukn = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
 
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
@@ -154,12 +155,14 @@ class Autopet_baseline:
 
         print("Initalizing model", end="")
         print(f"Using model for {tracer}")
-        if tracer=="psma":
+        if tracer==Tracer.PSMA:
             predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
-        elif tracer=="fdg":
+        elif tracer==Tracer.FDG:
             predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
+        elif tracer==Tracer.UKN:
+            predictor.initialize_from_trained_model_folder(trained_model_path_ukn, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
+            predictor.allowed_mirroring_axes = (1, 2)
 
-        #predictor.allowed_mirroring_axes = (1, 2)
         #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
