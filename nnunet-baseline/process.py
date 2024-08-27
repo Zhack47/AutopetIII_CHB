@@ -183,7 +183,8 @@ class Autopet_baseline:
 
         mask = (pt_cut>.5)*1+1
         mask = mask[None]
-        predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
+        # predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
+        predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
