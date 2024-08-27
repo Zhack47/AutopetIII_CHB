@@ -588,10 +588,7 @@ class nnUNetPredictor(object):
             for sl in tqdm(slicers, disable=not self.allow_tqdm):
                 workon = data[sl][None]
                 workon = workon.to(self.device)
-                print(f"slicer: {sl}")
-                print(workon.shape)
                 prediction = self._internal_maybe_mirror_and_predict(workon)[0].to(results_device)
-                print(prediction.shape)
 
                 if self.use_gaussian:
                     prediction *= gaussian

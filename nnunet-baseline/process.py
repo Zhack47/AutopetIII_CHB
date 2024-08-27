@@ -119,8 +119,8 @@ class Autopet_baseline:
 
         print("Creating", end="")
         predictor = nnUNetPredictor(
-            tile_step_size=0.6,
-            use_mirroring=False,
+            tile_step_size=0.5,
+            use_mirroring=True,
             verbose=False,
             verbose_preprocessing=False,
             allow_tqdm=True)
@@ -162,7 +162,7 @@ class Autopet_baseline:
         elif tracer=="fdg":
             predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
 
-        predictor.allowed_mirroring_axes = (1, 2)
+        #predictor.allowed_mirroring_axes = (1, 2)
         #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
         print("Done")
         predictor.dataset_json['file_ending'] = '.mha'
