@@ -155,10 +155,11 @@ class Autopet_baseline:
         tracer = fn_de_leo(pt, src_spacing)
 
         print("Initalizing model", end="")
+        print(f"Using model for {tracer}")
         if tracer=="psma":
-            predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4))
+            predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
         elif tracer=="fdg":
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4))
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
 
         predictor.allowed_mirroring_axes = (1, 2)
         #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
