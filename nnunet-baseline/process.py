@@ -10,7 +10,7 @@ from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPredictor_efficient
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
-from .tracer_discriminator import TracerDiscriminator
+from tracer_discriminator import TracerDiscriminator
 
 
 class Autopet_baseline:
