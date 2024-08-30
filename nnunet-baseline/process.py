@@ -158,7 +158,7 @@ class Autopet_baseline:
         if tracer==Tracer.PSMA:
             predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
         elif tracer==Tracer.FDG:
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(1,), checkpoint_name="checkpoint_final.pth")
         elif tracer==Tracer.UKN:
             predictor.initialize_from_trained_model_folder(trained_model_path_ukn, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
             predictor.allowed_mirroring_axes = (1, 2)
