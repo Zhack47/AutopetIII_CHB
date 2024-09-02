@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+from trace import Trace
 
 import SimpleITK
 import numpy as np
@@ -11,6 +12,7 @@ from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPred
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 from tracer_discriminator import TracerDiscriminator, Tracer
+from scipy.ndimage import label, binary_dilation
 
 
 class Autopet_baseline:
@@ -91,6 +93,51 @@ class Autopet_baseline:
         )"""
         print("Output written to: " + os.path.join(self.output_path, uuid + ".mha"))
 
+    # POST-PROCESSING
+    def get_3D_bb(arr: np.ndarray, index, margin):
+        h, w, d = arr.shape
+        aw = np.argwhere(arr == index)
+        x_min = np.min(aw[:, 0])
+        y_min = np.min(aw[:, 1])
+        z_min = np.min(aw[:, 2])
+
+        x_max = np.max(aw[:, 0])
+        y_max = np.max(aw[:, 1])
+        z_max = np.max(aw[:, 2])
+        return (max(x_min - margin, 0), min(x_max + margin, h),
+                max(y_min - margin, 0), min(y_max + margin, w),
+                max(z_min - margin, 0), min(z_max + margin, d))
+
+    def suv_40p(self, image: np.ndarray, mask: np.ndarray):
+        labeled_volume, num_labels = label(mask)
+        for i in range(1, num_labels):
+            print(f"Lesion {i}")
+            xmin, xmax, ymin, ymax, zmin, zmax = self.get_3D_bb(labeled_volume, i, 2)
+            cut = image[xmin:xmax, ymin:ymax, zmin:zmax]
+            cut_mask = mask[xmin:xmax, ymin:ymax, zmin:zmax] == 1
+            cut_mask = binary_dilation(binary_dilation(cut_mask))
+            replacing = np.zeros_like(cut)
+            threshold = (.4 * max(image[labeled_volume == i]))
+            print(threshold)
+            replacing[(cut >= threshold) | (cut > 4)] = 1
+            replacing[cut_mask == 0] = 0
+            if replacing.sum() < 10:
+                replacing = np.zeros_like(cut)
+            else:
+                pass
+            # replacing = find_biggest_connected_component(replacing)
+            mask[xmin:xmax, ymin:ymax, zmin:zmax] = replacing
+        return mask
+
+    def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray):
+        return self.suv_40p(image, mask)
+
+    def post_proc_psma(self, image: np.ndarray, mask: np.ndarray):
+        return mask
+
+    def post_proc_ukn(self, image: np.ndarray, mask: np.ndarray):
+        return mask
+
     def predict(self):
         """
         Your algorithm goes here
@@ -110,7 +157,7 @@ class Autopet_baseline:
         maybe_mkdir_p(self.output_path)
 
         trained_model_path_psma = "nnUNet_results/Dataset514_AUTOPETIII_SW_PSMA/nnUNetTrainer__nnUNetPlans__3d_fullres"
-        trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer__nnUNetPlans__3d_fullres"
+        trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer_autopetiii__nnUNetPlans__3d_fullres"
         trained_model_path_ukn = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
 
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
@@ -158,7 +205,7 @@ class Autopet_baseline:
         if tracer==Tracer.PSMA:
             predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
         elif tracer==Tracer.FDG:
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(1,), checkpoint_name="checkpoint_final.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds="all", checkpoint_name="checkpoint_final.pth")
         elif tracer==Tracer.UKN:
             predictor.initialize_from_trained_model_folder(trained_model_path_ukn, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
             predictor.allowed_mirroring_axes = (1, 2)
@@ -191,6 +238,12 @@ class Autopet_baseline:
         oneclass_np = np.zeros_like(pt)
 
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
+        if tracer == Tracer.FDG:
+            oneclass_np = self.post_proc_fdg(pt, oneclass_np)
+        elif tracer == Tracer.PSMA:
+            oneclass_np = self.post_proc_psma(pt, oneclass_np)
+        elif tracer == Tracer.UKN:
+            oneclass_np = self.post_proc_psma(pt, oneclass_np)
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
         oneclass_image.SetOrigin(src_origin)

@@ -26,3 +26,4 @@ imagecodecs
 yacs
 batchgeneratorsv2>=0.2
 einops
+scipy
