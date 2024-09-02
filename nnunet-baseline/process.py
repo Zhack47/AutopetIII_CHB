@@ -108,7 +108,7 @@ class Autopet_baseline:
                 max(y_min - margin, 0), min(y_max + margin, w),
                 max(z_min - margin, 0), min(z_max + margin, d))
 
-    def suv_40p(self, image: np.ndarray, mask: np.ndarray, prct: float, fixed: int):
+    def suv_40p(self, image: np.ndarray, mask: np.ndarray, prct: float, fixed: int, min_size=None):
         if prct is None and fixed is None:
             raise ValueError(f"Need at least a % threshold or fixed value threshold")
         labeled_volume, num_labels = label(mask)
@@ -128,8 +128,9 @@ class Autopet_baseline:
             else:
                 replacing[cut > fixed] = 1
             replacing[cut_mask == 0] = 0
-            if replacing.sum() < 10:
-                replacing = np.zeros_like(cut)
+            if min_size is not None:
+                if replacing.sum() < min_size:
+                    replacing = np.zeros_like(cut)
             else:
                 pass
             # replacing = find_biggest_connected_component(replacing)
@@ -137,10 +138,10 @@ class Autopet_baseline:
         return mask
 
     def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask, prct=.4, fixed=4)
+        return self.suv_40p(image, mask, prct=.4, fixed=4, min_size=10)
 
     def post_proc_psma(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask, prct=.41, fixed=None)
+        return self.suv_40p(image, mask, prct=.41, fixed=None, min_size=10)
 
     def post_proc_ukn(self, image: np.ndarray, mask: np.ndarray):
         return mask
