@@ -108,7 +108,9 @@ class Autopet_baseline:
                 max(y_min - margin, 0), min(y_max + margin, w),
                 max(z_min - margin, 0), min(z_max + margin, d))
 
-    def suv_40p(self, image: np.ndarray, mask: np.ndarray):
+    def suv_40p(self, image: np.ndarray, mask: np.ndarray, prct: float, fixed: int):
+        if prct is None and fixed is None:
+            raise ValueError(f"Need at least a % threshold or fixed value threshold")
         labeled_volume, num_labels = label(mask)
         for i in range(1, num_labels):
             print(f"Lesion {i}")
@@ -117,9 +119,14 @@ class Autopet_baseline:
             cut_mask = mask[xmin:xmax, ymin:ymax, zmin:zmax] == 1
             cut_mask = binary_dilation(binary_dilation(cut_mask))
             replacing = np.zeros_like(cut)
-            threshold = (.4 * max(image[labeled_volume == i]))
-            print(threshold)
-            replacing[(cut >= threshold) | (cut > 4)] = 1
+            if prct is not None:
+                threshold = (prct * max(image[labeled_volume == i]))
+                if fixed is not None:
+                    replacing[(cut >= threshold) | (cut > fixed)] = 1
+                else:
+                    replacing[(cut >= threshold)] = 1
+            else:
+                replacing[cut > fixed] = 1
             replacing[cut_mask == 0] = 0
             if replacing.sum() < 10:
                 replacing = np.zeros_like(cut)
@@ -130,10 +137,10 @@ class Autopet_baseline:
         return mask
 
     def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask)
+        return self.suv_40p(image, mask, prct=.4, fixed=4)
 
     def post_proc_psma(self, image: np.ndarray, mask: np.ndarray):
-        return mask
+        return self.suv_40p(image, mask, prct=.41, fixed=None)
 
     def post_proc_ukn(self, image: np.ndarray, mask: np.ndarray):
         return mask
