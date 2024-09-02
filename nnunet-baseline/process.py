@@ -94,7 +94,7 @@ class Autopet_baseline:
         print("Output written to: " + os.path.join(self.output_path, uuid + ".mha"))
 
     # POST-PROCESSING
-    def get_3D_bb(arr: np.ndarray, index, margin):
+    def get_3D_bb(self, arr: np.ndarray, index, margin):
         h, w, d = arr.shape
         aw = np.argwhere(arr == index)
         x_min = np.min(aw[:, 0])
