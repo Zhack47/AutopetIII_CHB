@@ -13,7 +13,7 @@ import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 from tracer_discriminator import TracerDiscriminator, Tracer
 from scipy.ndimage import label, binary_dilation
-
+from tqdm import tqdm
 
 class Autopet_baseline:
 
@@ -112,8 +112,7 @@ class Autopet_baseline:
         if prct is None and fixed is None:
             raise ValueError(f"Need at least a % threshold or fixed value threshold")
         labeled_volume, num_labels = label(mask)
-        for i in range(1, num_labels):
-            print(f"Lesion {i}")
+        for i in tqdm(range(1, num_labels)):
             xmin, xmax, ymin, ymax, zmin, zmax = self.get_3D_bb(labeled_volume, i, 2)
             cut = image[xmin:xmax, ymin:ymax, zmin:zmax]
             cut_mask = mask[xmin:xmax, ymin:ymax, zmin:zmax] == 1
