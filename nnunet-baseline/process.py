@@ -226,7 +226,7 @@ class Autopet_baseline:
             predictor.allowed_mirroring_axes = (1, 2)
 
         fin_size = ct.shape
-        new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(fin_spacing, target_spacing[::-1], src_spacing)])
+        new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(src_spacing, target_spacing[::-1], fin_size)])
         print(f"Resampled shape: {new_shape}")
         nb_voxels = np.prod(pt_cut.shape)
 
