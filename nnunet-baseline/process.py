@@ -207,13 +207,10 @@ class Autopet_baseline:
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
 
-
-        fin_spacing = src_spacing.GetSpacing()
-
         tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
 
-        print("Initalizing model", end="")
-        print(f"Using model for {tracer}")
+        print("[+] Initalizing model")
+        print(f"[+] Using model for {tracer}")
         if tracer==Tracer.PSMA:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_psma, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
@@ -229,7 +226,7 @@ class Autopet_baseline:
             predictor.allowed_mirroring_axes = (1, 2)
 
         fin_size = ct.shape
-        new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(fin_spacing, target_spacing[::-1], fin_size)])
+        new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(fin_spacing, target_spacing[::-1], src_spacing)])
         print(f"Resampled shape: {new_shape}")
         nb_voxels = np.prod(pt_cut.shape)
 
@@ -253,8 +250,13 @@ class Autopet_baseline:
         print("Done")
         if nb_voxels < 7e7 or tracer==Tracer.PSMA:
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
-        else:
+        elif nb_voxels < 1.2e8:
+            print("Removing one axis for prediction mirroring")
             predictor.allowed_mirroring_axes = (1, 2)
+            predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
+        else:
+            print("Removing all mirroring")
+            predictor.allowed_mirroring_axes = None
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
