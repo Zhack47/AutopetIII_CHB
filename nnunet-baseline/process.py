@@ -202,20 +202,36 @@ class Autopet_baseline:
         pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
         print(pt.shape)
         print(pt_cut.shape)
+
         src_spacing = properties["sitk_stuff"]["spacing"]
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
+
+
+        fin_spacing = src_spacing.GetSpacing()
+
         tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
 
         print("Initalizing model", end="")
         print(f"Using model for {tracer}")
         if tracer==Tracer.PSMA:
+            target_spacing = tuple(map(float, json.load(open(join(trained_model_path_psma, "plans.json"), "r"))["configurations"][
+                "3d_fullres"]["spacing"]))
             predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
         elif tracer==Tracer.FDG:
+            target_spacing = tuple(map(float, json.load(open(join(trained_model_path_fdg, "plans.json"), "r"))["configurations"][
+                "3d_fullres"]["spacing"]))
             predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds="all", checkpoint_name="checkpoint_final.pth")
         elif tracer==Tracer.UKN:
+            target_spacing = tuple(map(float, json.load(open(join(trained_model_path_ukn, "plans.json"), "r"))["configurations"][
+                "3d_fullres"]["spacing"]))
             predictor.initialize_from_trained_model_folder(trained_model_path_ukn, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
             predictor.allowed_mirroring_axes = (1, 2)
+
+        fin_size = ct.shape
+        new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(fin_spacing, target_spacing[::-1], fin_size)])
+        print(f"Resampled shape: {new_shape}")
+        nb_voxels = np.prod(pt_cut.shape)
 
         #predictor.configuration_manager.configuration["patch_size"] = [32, 32, 32]
         print("Done")
@@ -235,9 +251,11 @@ class Autopet_baseline:
         print("Stacking..", end="")
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
-
-        # predictor.predict_single_npy_array_masked(images, mask, properties, None, output_file_trunc, False)
-        predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
+        if nb_voxels < 7e7 or tracer==Tracer.PSMA:
+            predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
+        else:
+            predictor.allowed_mirroring_axes = (1, 2)
+            predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
         # Keeping only the 'lesion' class
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
