@@ -284,9 +284,9 @@ class Autopet_baseline:
 
 
         if tracer == Tracer.FDG:
-            oneclass_np = self.post_proc_fdg(pt, oneclass_np, min_value=liver_suv_mean)
+            oneclass_np = self.post_proc_fdg(pt, oneclass_np, min_value=min(2.5,liver_suv_mean))
         elif tracer == Tracer.PSMA:
-            oneclass_np = self.post_proc_psma(pt, oneclass_np, min_value=spleen_suv_mean)
+            oneclass_np = self.post_proc_psma(pt, oneclass_np, min_value=min(3,spleen_suv_mean))
         elif tracer == Tracer.UKN:
             oneclass_np = self.post_proc_ukn(pt, oneclass_np)
 
