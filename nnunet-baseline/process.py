@@ -116,20 +116,21 @@ class Autopet_baseline:
             xmin, xmax, ymin, ymax, zmin, zmax = self.get_3D_bb(labeled_volume, i, 2)
             cut = image[xmin:xmax, ymin:ymax, zmin:zmax]
             cut_mask = mask[xmin:xmax, ymin:ymax, zmin:zmax] == 1
-            cut_mask = binary_dilation(binary_dilation(cut_mask))
+            nb_voxels_init = cut_mask.sum()
             replacing = np.zeros_like(cut)
-            if prct is not None:
-                threshold = (prct * max(image[labeled_volume == i]))
-                if fixed is not None:
-                    replacing[(cut >= threshold) | (cut > fixed)] = 1
+            if min_size is None:
+                min_size= nb_voxels_init
+            if nb_voxels_init >= min_size:
+                cut_mask = binary_dilation(binary_dilation(cut_mask))
+                if prct is not None:
+                    threshold = (prct * max(image[labeled_volume == i]))
+                    if fixed is not None:
+                        replacing[(cut >= threshold) | (cut > fixed)] = 1
+                    else:
+                        replacing[(cut >= threshold)] = 1
                 else:
-                    replacing[(cut >= threshold)] = 1
-            else:
-                replacing[cut > fixed] = 1
-            replacing[cut_mask == 0] = 0
-            if min_size is not None:
-                if replacing.sum() < min_size:
-                    replacing = np.zeros_like(cut)
+                    replacing[cut > fixed] = 1
+                replacing[cut_mask == 0] = 0
             else:
                 pass
             # replacing = find_biggest_connected_component(replacing)
@@ -265,12 +266,12 @@ class Autopet_baseline:
         oneclass_np = np.zeros_like(pt)
 
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
-        if tracer == Tracer.FDG:
+        """if tracer == Tracer.FDG:
             oneclass_np = self.post_proc_fdg(pt, oneclass_np)
         elif tracer == Tracer.PSMA:
             oneclass_np = self.post_proc_psma(pt, oneclass_np)
         elif tracer == Tracer.UKN:
-            oneclass_np = self.post_proc_psma(pt, oneclass_np)
+            oneclass_np = self.post_proc_psma(pt, oneclass_np)"""
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
         oneclass_image.SetOrigin(src_origin)
