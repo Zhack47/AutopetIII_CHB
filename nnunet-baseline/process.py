@@ -138,7 +138,7 @@ class Autopet_baseline:
         return mask
 
     def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask, prct=.4, fixed=4, min_size=10)
+        return self.suv_40p(image, mask, prct=.4, fixed=4, min_value=2.5, min_size=10)
 
     def post_proc_psma(self, image: np.ndarray, mask: np.ndarray):
         return self.suv_40p(image, mask, prct=.25, fixed=None, min_size=10)
