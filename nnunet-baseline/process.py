@@ -120,7 +120,7 @@ class Autopet_baseline:
             replacing = np.zeros_like(cut)
             if min_size is None:
                 min_size= nb_voxels_init
-            if nb_voxels_init >= min_size and np.max(image[cut_mask]) > min_value:
+            if nb_voxels_init >= min_size and image[cut_mask].max() > min_value:
                 cut_mask = binary_dilation(binary_dilation(cut_mask))
                 if prct is not None:
                     threshold = (prct * max(image[labeled_volume == i]))
@@ -264,6 +264,7 @@ class Autopet_baseline:
 
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
         out_np = SimpleITK.GetArrayFromImage(out_image)
+
         # Get the SUV Mean for liver and spleen
         liver_class = 3
         spleen_class = 6
