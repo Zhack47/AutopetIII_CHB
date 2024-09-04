@@ -266,12 +266,12 @@ class Autopet_baseline:
         oneclass_np = np.zeros_like(pt)
 
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
-        """if tracer == Tracer.FDG:
+        if tracer == Tracer.FDG:
             oneclass_np = self.post_proc_fdg(pt, oneclass_np)
         elif tracer == Tracer.PSMA:
             oneclass_np = self.post_proc_psma(pt, oneclass_np)
         elif tracer == Tracer.UKN:
-            oneclass_np = self.post_proc_psma(pt, oneclass_np)"""
+            oneclass_np = self.post_proc_psma(pt, oneclass_np)
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
         oneclass_image.SetOrigin(src_origin)
