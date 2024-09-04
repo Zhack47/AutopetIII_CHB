@@ -120,16 +120,16 @@ class Autopet_baseline:
             replacing = np.zeros_like(cut)
             if min_size is None:
                 min_size= nb_voxels_init
-            if nb_voxels_init >= min_size:
+            if nb_voxels_init >= min_size and np.max(image[cut_mask]) > min_value:
                 cut_mask = binary_dilation(binary_dilation(cut_mask))
                 if prct is not None:
                     threshold = (prct * max(image[labeled_volume == i]))
                     if fixed is not None:
-                        replacing[(cut >= threshold) | (cut > fixed) & (cut > min_value)] = 1
+                        replacing[(cut >= threshold) | (cut > fixed) ] = 1
                     else:
-                        replacing[(cut >= threshold) & (cut > min_value)] = 1
+                        replacing[cut >= threshold] = 1
                 else:
-                    replacing[(cut > fixed) & (cut > min_value)] = 1
+                    replacing[cut > fixed] = 1
                 replacing[cut_mask == 0] = 0
             else:
                 pass
@@ -137,11 +137,11 @@ class Autopet_baseline:
             mask[xmin:xmax, ymin:ymax, zmin:zmax] = replacing
         return mask
 
-    def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask, prct=.4, fixed=4, min_value=2.5, min_size=10)
+    def post_proc_fdg(self, image: np.ndarray, mask: np.ndarray, min_value=0.):
+        return self.suv_40p(image, mask, prct=.4, fixed=4, min_value=min_value, min_size=10)
 
-    def post_proc_psma(self, image: np.ndarray, mask: np.ndarray):
-        return self.suv_40p(image, mask, prct=.25, fixed=None, min_size=10)
+    def post_proc_psma(self, image: np.ndarray, mask: np.ndarray, min_value=0.):
+        return self.suv_40p(image, mask, prct=.25, fixed=None, min_size=10, min_value=min_value)
 
     def post_proc_ukn(self, image: np.ndarray, mask: np.ndarray):
         return mask
@@ -260,18 +260,34 @@ class Autopet_baseline:
             predictor.allowed_mirroring_axes = None
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
 
-        # Keeping only the 'lesion' class
+
+
         out_image = SimpleITK.ReadImage(output_file_trunc+".mha")
         out_np = SimpleITK.GetArrayFromImage(out_image)
+        # Get the SUV Mean for liver and spleen
+        liver_class = 3
+        spleen_class = 6
+        if tracer == Tracer.FDG:
+            liver_mask = out_np==liver_class
+            liver_suv_mean = np.mean(pt_cut[liver_mask])
+            print(f"Liver SUVmean is {liver_suv_mean}")
+        elif tracer == Tracer.PSMA:
+            spleen_mask = out_np==spleen_class
+            spleen_suv_mean = np.mean(pt_cut[spleen_mask])
+            print(f"Spleen SUVmean is {spleen_suv_mean}")
+
+        # Keeping only the 'lesion' class
         oneclass_np = np.zeros_like(pt)
 
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
+
+
         if tracer == Tracer.FDG:
-            oneclass_np = self.post_proc_fdg(pt, oneclass_np)
+            oneclass_np = self.post_proc_fdg(pt, oneclass_np, min_value=liver_suv_mean)
         elif tracer == Tracer.PSMA:
-            oneclass_np = self.post_proc_psma(pt, oneclass_np)
+            oneclass_np = self.post_proc_psma(pt, oneclass_np, min_value=spleen_suv_mean)
         elif tracer == Tracer.UKN:
-            oneclass_np = self.post_proc_psma(pt, oneclass_np)
+            oneclass_np = self.post_proc_ukn(pt, oneclass_np)
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
         oneclass_image.SetOrigin(src_origin)
