@@ -12,6 +12,7 @@ from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPred
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 from tracer_discriminator import TracerDiscriminator, Tracer
+from smart_tracer_discriminator import SmartTracerDiscriminator
 from scipy.ndimage import label, binary_dilation
 from tqdm import tqdm
 
@@ -208,7 +209,9 @@ class Autopet_baseline:
         src_origin = properties["sitk_stuff"]["origin"]
         src_direction = properties["sitk_stuff"]["direction"]
 
-        tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
+        # tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
+        tracer = SmartTracerDiscriminator("dd_weights/weights", torch.devvice("cuda"))(pt)
+
 
         print("[+] Initalizing model")
         print(f"[+] Using model for {tracer}")

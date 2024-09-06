@@ -13,6 +13,7 @@ ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
 COPY --chown=algorithm:algorithm nnUNet_results /opt/algorithm/nnUNet_results
+COPY --chown=algorithm:algorithm dd_weights.zip /opt/algorithm/dd_weights.zip
 
 RUN python -m pip install --user -U pip && \
     python -m pip install --user -r requirements.txt && \
@@ -28,6 +29,8 @@ RUN python -m pip install -e nnUNet
 
 COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 COPY --chown=algorithm:algorithm tracer_discriminator.py /opt/algorithm/
+COPY --chown=algorithm:algorithm deep_discriminator.py /opt/algorithm/
+COPY --chown=algorithm:algorithm smart_tracer_discriminator.py.py /opt/algorithm/
 COPY --chown=algorithm:algorithm params.json /opt/algorithm/
 
 
