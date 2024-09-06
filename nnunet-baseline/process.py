@@ -165,8 +165,8 @@ class Autopet_baseline:
         maybe_mkdir_p(self.output_path)
 
         trained_model_path_psma = "nnUNet_results/Dataset514_AUTOPETIII_SW_PSMA/nnUNetTrainer__nnUNetPlans__3d_fullres"
-        trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer_autopetiii__nnUNetPlans__3d_fullres"
-        trained_model_path_ukn = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
+        trained_model_path_fdg = "nnUNet_results/Dataset513_AUTOPETIII_SW_FDG/nnUNetTrainer__nnUNetPlans__3d_fullres_isotropic"
+        #trained_model_path_ukn = "nnUNet_results/Dataset512_AUTOPETIII_SUPLAB_WIN/nnUNetTrainer__nnUNetPlans__3d_fullres"
 
         ct_mha = subfiles(join(self.input_path, 'images/ct/'), suffix='.mha')[0]
         pet_mha = subfiles(join(self.input_path, 'images/pet/'), suffix='.mha')[0]
@@ -268,7 +268,7 @@ class Autopet_baseline:
         out_np = SimpleITK.GetArrayFromImage(out_image)
 
         # Get the SUV Mean for liver and spleen
-        liver_class = 3
+        """liver_class = 3
         spleen_class = 6
         if tracer == Tracer.FDG:
             liver_mask = out_np==liver_class
@@ -277,7 +277,7 @@ class Autopet_baseline:
         elif tracer == Tracer.PSMA:
             spleen_mask = out_np==spleen_class
             spleen_suv_mean = np.mean(pt_cut[spleen_mask])
-            print(f"Spleen SUVmean is {spleen_suv_mean}")
+            print(f"Spleen SUVmean is {spleen_suv_mean}")"""
 
         # Keeping only the 'lesion' class
         oneclass_np = np.zeros_like(pt)
@@ -285,12 +285,12 @@ class Autopet_baseline:
         oneclass_np[x_min:x_max, y_min:y_max, z_min:z_max] = out_np==1
 
 
-        if tracer == Tracer.FDG:
+        """if tracer == Tracer.FDG:
             oneclass_np = self.post_proc_fdg(pt, oneclass_np, min_value=min(2.5,liver_suv_mean))
         elif tracer == Tracer.PSMA:
             oneclass_np = self.post_proc_psma(pt, oneclass_np, min_value=min(3,spleen_suv_mean))
         elif tracer == Tracer.UKN:
-            oneclass_np = self.post_proc_ukn(pt, oneclass_np)
+            oneclass_np = self.post_proc_ukn(pt, oneclass_np)"""
 
         oneclass_image = SimpleITK.GetImageFromArray(oneclass_np.astype(np.uint8))
         oneclass_image.SetOrigin(src_origin)
