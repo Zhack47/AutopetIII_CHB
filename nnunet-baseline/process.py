@@ -221,7 +221,7 @@ class Autopet_baseline:
         elif tracer==Tracer.FDG:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_fdg, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds="all", checkpoint_name="checkpoint_final.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1), checkpoint_name="checkpoint_final.pth")
         """elif tracer==Tracer.UKN:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_ukn, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
