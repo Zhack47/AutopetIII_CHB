@@ -30,7 +30,7 @@ RUN python -m pip install -e nnUNet
 COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 COPY --chown=algorithm:algorithm tracer_discriminator.py /opt/algorithm/
 COPY --chown=algorithm:algorithm deep_discriminator.py /opt/algorithm/
-COPY --chown=algorithm:algorithm smart_tracer_discriminator.py.py /opt/algorithm/
+COPY --chown=algorithm:algorithm smart_tracer_discriminator.py /opt/algorithm/
 COPY --chown=algorithm:algorithm params.json /opt/algorithm/
 
 
