@@ -198,8 +198,7 @@ class Autopet_baseline:
         ct = images[0]
         pt = images[1]
 
-        print(pet_mha)
-        (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(SimpleITK.ReadImage(pet_mha), .1)
+        (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
         print(pt.shape)
@@ -210,7 +209,7 @@ class Autopet_baseline:
         src_direction = properties["sitk_stuff"]["direction"]
 
         # tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
-        tracer = SmartTracerDiscriminator("dd_weights/weights", torch.device("cuda"))(pt)
+        tracer = SmartTracerDiscriminator("dd_weights/weights", torch.device("cuda"))(SimpleITK.ReadImage(pet_mha))
 
 
         print("[+] Initalizing model")
