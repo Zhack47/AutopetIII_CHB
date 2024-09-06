@@ -209,7 +209,7 @@ class Autopet_baseline:
         src_direction = properties["sitk_stuff"]["direction"]
 
         # tracer, _ = TracerDiscriminator("params.json")(pt, src_spacing)
-        tracer = SmartTracerDiscriminator("dd_weights/weights", torch.devvice("cuda"))(pt)
+        tracer = SmartTracerDiscriminator("dd_weights/weights", torch.device("cuda"))(pt)
 
 
         print("[+] Initalizing model")
