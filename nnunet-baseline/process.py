@@ -198,7 +198,8 @@ class Autopet_baseline:
         ct = images[0]
         pt = images[1]
 
-        (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(pt, .1)
+        print(pet_mha)
+        (x_min, y_min, z_min), (x_max, y_max, z_max) = threshold_bounding_box(SimpleITK.ReadImage(pet_mha), .1)
         ct = ct[x_min: x_max, y_min:y_max, z_min:z_max]
         pt_cut= pt[x_min: x_max, y_min:y_max, z_min:z_max]
         print(pt.shape)
