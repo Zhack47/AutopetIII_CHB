@@ -11,8 +11,7 @@ from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPredictor_efficient
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
-from tracer_discriminator import TracerDiscriminator, Tracer
-from smart_tracer_discriminator import SmartTracerDiscriminator
+from smart_tracer_discriminator import SmartTracerDiscriminator, Tracer
 from scipy.ndimage import label, binary_dilation
 from tqdm import tqdm
 
@@ -223,11 +222,11 @@ class Autopet_baseline:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_fdg, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
             predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds="all", checkpoint_name="checkpoint_final.pth")
-        elif tracer==Tracer.UKN:
+        """elif tracer==Tracer.UKN:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_ukn, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
             predictor.initialize_from_trained_model_folder(trained_model_path_ukn, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
-            predictor.allowed_mirroring_axes = (1, 2)
+            predictor.allowed_mirroring_axes = (1, 2)"""
 
         fin_size = ct.shape
         new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(src_spacing, target_spacing[::-1], fin_size)])
