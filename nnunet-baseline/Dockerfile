@@ -13,7 +13,7 @@ ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
 COPY --chown=algorithm:algorithm nnUNet_results /opt/algorithm/nnUNet_results
-COPY --chown=algorithm:algorithm dd_weights.zip /opt/algorithm/dd_weights.zip
+COPY --chown=algorithm:algorithm dd_weights /opt/algorithm/dd_weights
 
 RUN python -m pip install --user -U pip && \
     python -m pip install --user -r requirements.txt && \
