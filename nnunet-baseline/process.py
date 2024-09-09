@@ -251,9 +251,9 @@ class Autopet_baseline:
         print("Stacking..", end="")
         images = np.stack([ct, pt_cut, ct_win, pt_win])
         print("Done")
-        if nb_voxels < 4.7e7 or tracer==Tracer.PSMA:
+        if nb_voxels < 6.5e7 or tracer==Tracer.PSMA:
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
-        elif nb_voxels < 6.5e7:
+        elif nb_voxels < 9e7:
             print("Removing one axis for prediction mirroring")
             predictor.allowed_mirroring_axes = (1, 2)
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)

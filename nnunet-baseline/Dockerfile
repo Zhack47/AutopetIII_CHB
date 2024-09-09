@@ -23,8 +23,8 @@ RUN python -m pip install --user -U pip && \
     mkdir -p /opt/algorithm/nnUNet_raw_data_base/nnUNet_raw_data/Task001_TCIA/result
 
 
-COPY --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet
-RUN python -m pip install -e nnUNet
+#COPY --chown=algorithm:algorithm nnUNet/ /opt/algorithm/nnUNet
+#RUN python -m pip install -e nnUNet
 
 
 COPY --chown=algorithm:algorithm process.py /opt/algorithm/
