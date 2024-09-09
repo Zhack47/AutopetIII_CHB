@@ -8,7 +8,7 @@ import SimpleITK
 import numpy as np
 import torch
 from nnunetv2.imageio.simpleitk_reader_writer import SimpleITKIO
-from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor, nnUNetPredictor_efficient
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 import os
 from batchgenerators.utilities.file_and_folder_operations import maybe_mkdir_p, subfiles, join
 from smart_tracer_discriminator import SmartTracerDiscriminator, Tracer

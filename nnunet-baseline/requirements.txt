@@ -27,3 +27,4 @@ yacs
 batchgeneratorsv2>=0.2
 einops
 scipy
+pydicom==2.4.4
