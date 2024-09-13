@@ -221,7 +221,7 @@ class Autopet_baseline:
         elif tracer==Tracer.FDG:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_fdg, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4,"all"), checkpoint_name="checkpoint_final.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_final.pth")
         """elif tracer==Tracer.UKN:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_ukn, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
@@ -253,7 +253,7 @@ class Autopet_baseline:
         print("Done")
         if nb_voxels < 6.5e7 or tracer==Tracer.PSMA:
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
-        elif nb_voxels < 9e7:
+        elif nb_voxels < 6.8e7:
             print("Removing one axis for prediction mirroring")
             predictor.allowed_mirroring_axes = (1, 2)
             predictor.predict_single_npy_array(images, properties, None, output_file_trunc, False)
