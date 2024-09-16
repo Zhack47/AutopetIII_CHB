@@ -1,4 +1,4 @@
-# nnUNet baseline algorithm for autoPETIII challenge
+# CHB-QuantIF algorithm for autoPETIII challenge
 
 Source code for the nnUNet baseline algorithm container for autoPETIII challenge. Information about the 
 submission can be found [here](https://autopet-iii.grand-challenge.org/submission/) and in the [grand challenge 

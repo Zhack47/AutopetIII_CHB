@@ -146,11 +146,11 @@ class Autopet_baseline:
         if tracer==Tracer.PSMA:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_psma, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
-            predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4,"all"), checkpoint_name="checkpoint_best.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_psma, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_best.pth")
         elif tracer==Tracer.FDG:
             target_spacing = tuple(map(float, json.load(open(join(trained_model_path_fdg, "plans.json"), "r"))["configurations"][
                 "3d_fullres"]["spacing"]))
-            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4,"all"), checkpoint_name="checkpoint_final.pth")
+            predictor.initialize_from_trained_model_folder(trained_model_path_fdg, use_folds=(0,1,2,3,4), checkpoint_name="checkpoint_final.pth")
 
         fin_size = ct.shape
         new_shape = np.array([int(round(i / j * k)) for i, j, k in zip(src_spacing, target_spacing[::-1], fin_size)])
