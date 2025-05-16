@@ -1,5 +1,5 @@
 # weights
-nnUNet_results/
+nnUNet_results/Dataset*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
