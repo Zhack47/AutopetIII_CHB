@@ -17,7 +17,7 @@ docker volume create autopet_baseline-output-$VOLUME_SUFFIX
 echo "Volume created, running evaluation"
 # Do not change any of the parameters to docker run, these are fixed
 # --gpus="device=0" \
-docker run -it --rm \
+docker run -it \
         --memory="${MEM_LIMIT}" \
         --memory-swap="${MEM_LIMIT}" \
         --network="none" \
